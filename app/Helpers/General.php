@@ -13,7 +13,6 @@ class General
     public static function read_school_codes()
     {
         $filePath = storage_path('app/files/Government_Schools.xlsx');
-        // Load the spreadsheet
         $spreadsheet = IOFactory::load($filePath);
         $mySheetNames = ['CAT A', 'CAT B', 'CAT C', 'CAT D'];
         foreach ($spreadsheet->getSheetNames() as $sheetIndex => $sheetName) {
@@ -31,7 +30,6 @@ class General
                             ['name' => $code],
                             ['name' => $code]
                         );
-                        Log::info("\nCODE: $code");
                     }
                 } catch (\Throwable $th) {
                     Log::info("\SCHOOL CODES ERROR: ", $th->getMessage() . ", LINE NUMBER: " . $th->getLine());
@@ -43,18 +41,13 @@ class General
     public static function read_school_regions()
     {
         $filePath = storage_path('app/files/Government_Schools.xlsx');
-        // Load the spreadsheet
         $spreadsheet = IOFactory::load($filePath);
         $mySheetNames = ['CAT A', 'CAT B', 'CAT C', 'CAT D'];
-        // Iterate through each sheet
         foreach ($spreadsheet->getSheetNames() as $sheetIndex => $sheetName) {
-
-            // Get the sheet, modify condition to choose the correct sheet
             if (in_array($sheetName, $mySheetNames)) {
                 $sheet = $spreadsheet->getSheet($sheetIndex);
                 Log::info("\nSHEET NAME === $sheetName");
 
-                // Get the highest row and column
                 $highestRow = $sheet->getHighestRow();
                 $highestColumn = $sheet->getHighestColumn();
 
@@ -65,7 +58,6 @@ class General
                             ['name' => $region_name],
                             ['name' => $region_name]
                         );
-                        Log::info("\nCODE: $region_name");
                     }
                 } catch (\Throwable $th) {
                     Log::info("\nREGIONS ERROR: ", $th->getMessage() . ", LINE NUMBER: " . $th->getLine());
