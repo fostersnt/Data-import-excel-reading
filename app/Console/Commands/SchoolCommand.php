@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\SchoolStatus;
 use App\Models\SchoolTrack;
 use App\Models\SchoolType;
 use Illuminate\Console\Command;
@@ -28,16 +29,20 @@ class SchoolCommand extends Command
     public function handle()
     {
         $types = [
-            'tvet', 'regular', 'stem', 'special (Catchment area)', 'special (cluster)', 'special (hearing & visually impaired)',
+            'SHS', 'TVET', 'STEM', 'SHTS',
         ];
 
         $tracks = [
             'single', 'transitiona (double)'
         ];
 
-        $regions = [
-            "Greater Accra", "Central", "Western", "Eastern", "Northern", "Upper East", "Upper West", "Volta", "Ashanti", "Bono", "Ahafo", "Bono East", "Western North", "North East", "Oti", "Savannah"
+        $statuses = [
+            'Day', 'Boarding', 'Day/Boarding'
         ];
+
+        // $regions = [
+        //     "Greater Accra", "Central", "Western", "Eastern", "Northern", "Upper East", "Upper West", "Volta", "Ashanti", "Bono", "Ahafo", "Bono East", "Western North", "North East", "Oti", "Savannah"
+        // ];
 
         //SCHOOL TYPES
         foreach ($types as $type) {
@@ -63,16 +68,28 @@ class SchoolCommand extends Command
             }
         }
 
-        //REGIONS
-        foreach ($regions as $region) {
+        //SCHOOL STATUSES
+        foreach ($statuses as $status) {
             try {
-                SchoolTrack::query()->createOrUpdate(
-                    ['name' => $region],
-                    ['name' => $region]
+                SchoolStatus::query()->createOrUpdate(
+                    ['name' => $status],
+                    ['name' => $status]
                 );
             } catch (\Throwable $th) {
-                $this->info("\nREGIONS === ", $th->getMessage());
+                $this->info("\nSCHOOL STATUSES === ", $th->getMessage());
             }
         }
+
+        // //REGIONS
+        // foreach ($regions as $region) {
+        //     try {
+        //         SchoolTrack::query()->createOrUpdate(
+        //             ['name' => $region],
+        //             ['name' => $region]
+        //         );
+        //     } catch (\Throwable $th) {
+        //         $this->info("\nREGIONS === ", $th->getMessage());
+        //     }
+        // }
     }
 }
