@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\SchoolCategory;
 use App\Models\SchoolStatus;
 use App\Models\SchoolTrack;
 use App\Models\SchoolType;
@@ -38,6 +39,10 @@ class SchoolCommand extends Command
 
         $statuses = [
             'Day', 'Boarding', 'Day/Boarding'
+        ];
+
+        $school_categories = [
+            'A', 'B', 'C', 'D'
         ];
 
         // $regions = [
@@ -77,6 +82,18 @@ class SchoolCommand extends Command
                 );
             } catch (\Throwable $th) {
                 $this->info("\nSCHOOL STATUSES === ", $th->getMessage());
+            }
+        }
+
+        //SCHOOL CATEGORIES
+        foreach ($school_categories as $school_category) {
+            try {
+                SchoolCategory::query()->createOrUpdate(
+                    ['name' => $school_category],
+                    ['name' => $school_category]
+                );
+            } catch (\Throwable $th) {
+                $this->info("\nSCHOOL CATEGORIES === ", $th->getMessage());
             }
         }
 
