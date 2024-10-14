@@ -24,13 +24,16 @@ class General
                     $category = $check ? $check->id : null;
                     break;
                 case 'CAT B':
-                    $category = 2;
+                    $check = SchoolCategory::query()->where('name', 'B')->latest()->first();
+                    $category = $check ? $check->id : null;
                     break;
                 case 'CAT C':
-                    $category = 3;
+                    $check = SchoolCategory::query()->where('name', 'C')->latest()->first();
+                    $category = $check ? $check->id : null;
                     break;
                 case 'CAT D':
-                    $category = 4;
+                    $check = SchoolCategory::query()->where('name', 'D')->latest()->first();
+                    $category = $check ? $check->id : null;
                     break;
 
                 default:
@@ -89,6 +92,37 @@ class General
         $mySheetNames = ['CAT A', 'CAT B', 'CAT C', 'CAT D'];
         foreach ($spreadsheet->getSheetNames() as $sheetIndex => $sheetName) {
             if (in_array($sheetName, $mySheetNames)) {
+                $sheet = $spreadsheet->getSheet($sheetIndex);
+                Log::info("\nSHEET NAME === $sheetName");
+
+                $highestRow = $sheet->getHighestRow();
+                $highestColumn = $sheet->getHighestColumn();
+
+                try {
+                    for ($row = 2; $row <= $highestRow; $row++) {
+                        $region_name = $sheet->getCell('B' . $row);
+                        if ($region_name != null && $region_name != '') {
+                            Region::query()->updateOrCreate(
+                                ['name' => $region_name],
+                                ['name' => $region_name]
+                            );
+                        }
+                    }
+                } catch (\Throwable $th) {
+                    Log::info("\nREGIONS ERROR: ", $th->getMessage() . ", LINE NUMBER: " . $th->getLine());
+                }
+            }
+        }
+    }
+
+    //READING SCHOOL NAMES
+    public static function read_CAT_A_schools()
+    {
+        $filePath = storage_path('app/files/Government_Schools.xlsx');
+        $spreadsheet = IOFactory::load($filePath);
+        $mySheetNames = ['CAT A', 'CAT B', 'CAT C', 'CAT D'];
+        foreach ($spreadsheet->getSheetNames() as $sheetIndex => $sheetName) {
+            if ($sheetName == 'CAT A') {
                 $sheet = $spreadsheet->getSheet($sheetIndex);
                 Log::info("\nSHEET NAME === $sheetName");
 

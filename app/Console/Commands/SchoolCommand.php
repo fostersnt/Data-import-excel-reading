@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Programme;
 use App\Models\SchoolCategory;
 use App\Models\SchoolStatus;
 use App\Models\SchoolTrack;
@@ -47,6 +48,17 @@ class SchoolCommand extends Command
 
         $genders = [
             'Boys', 'Girls', 'Mixed'
+        ];
+
+        $programmes = [
+            101 => 'AGRICULTURE',
+            201 => 'BUSINESS',
+            301 => 'TECH',
+            401 => 'HOME ECONOMICS',
+            402 => 'VISUAL ARTS',
+            501 => 'GENERAL ARTS',
+            502 => 'GENERAL SCIENCE',
+            503 => 'STEM'
         ];
 
         //SCHOOL TYPES
@@ -105,7 +117,19 @@ class SchoolCommand extends Command
                     ['name' => $gender]
                 );
             } catch (\Throwable $th) {
-                $this->info("\nSCHOOL CATEGORIES === ". $th->getMessage());
+                $this->info("\nGENDER ERRORS === ". $th->getMessage());
+            }
+        }
+
+        //PROGRAMMES
+        foreach ($programmes as $key => $value) {
+            try {
+                Programme::query()->updateOrCreate(
+                    ['name' => $key],
+                    ['code' => $key, 'name' => $value]
+                );
+            } catch (\Throwable $th) {
+                $this->info("\nPROGRAMMES ERROR  === ". $th->getMessage());
             }
         }
     }
