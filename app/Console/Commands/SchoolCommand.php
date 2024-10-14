@@ -45,6 +45,10 @@ class SchoolCommand extends Command
             'A', 'B', 'C', 'D'
         ];
 
+        $genders = [
+            'Boys', 'Girls', 'Mixed'
+        ];
+
         //SCHOOL TYPES
         foreach ($types as $type) {
             try {
@@ -87,6 +91,18 @@ class SchoolCommand extends Command
                 SchoolCategory::query()->updateOrCreate(
                     ['name' => $school_category],
                     ['name' => $school_category]
+                );
+            } catch (\Throwable $th) {
+                $this->info("\nSCHOOL CATEGORIES === ". $th->getMessage());
+            }
+        }
+
+        //GENDER
+        foreach ($genders as $gender) {
+            try {
+                SchoolCategory::query()->updateOrCreate(
+                    ['name' => $gender],
+                    ['name' => $gender]
                 );
             } catch (\Throwable $th) {
                 $this->info("\nSCHOOL CATEGORIES === ". $th->getMessage());

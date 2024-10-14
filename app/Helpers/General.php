@@ -3,6 +3,7 @@
 namespace App\Helpers;
 
 use App\Models\Region;
+use App\Models\SchoolCategory;
 use App\Models\SchoolCode;
 use Illuminate\Support\Facades\Log;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -15,11 +16,12 @@ class General
         $filePath = storage_path('app/files/Government_Schools.xlsx');
         $spreadsheet = IOFactory::load($filePath);
         $mySheetNames = ['CAT A', 'CAT B', 'CAT C', 'CAT D'];
-        $category = 'N/A';
+        $category = null;
         foreach ($spreadsheet->getSheetNames() as $sheetIndex => $sheetName) {
             switch ($sheetName) {
                 case 'CAT A':
-                    $category = 1;
+                    $check = SchoolCategory::query()->where('name', 'A')->latest()->first();
+                    $category = $check ? $check->id : null;
                     break;
                 case 'CAT B':
                     $category = 2;
