@@ -28,7 +28,7 @@ class FileReadingCommand extends Command
     {
         // General::read_school_regions();
         // General::read_school_districts();
-        General::read_schools_and_locations();
-        // General::read_school_programmes();
+        // General::read_schools_and_locations();
+        General::read_school_programmes();
     }
 }

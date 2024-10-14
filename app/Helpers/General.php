@@ -22,9 +22,11 @@ class General
         $mySheetNames = ['CAT A', 'CAT B', 'CAT C', 'CAT D'];
         foreach ($spreadsheet->getSheetNames() as $sheetIndex => $sheetName) {
 
-        $category = explode(' ', $sheetName)[1];
+            if (in_array($sheetName, $mySheetNames)) {
 
-        if (in_array($sheetName, $mySheetNames)) {
+                $split = explode(' ', $sheetName);
+                $category = $split[1];
+
                 $sheet = $spreadsheet->getSheet($sheetIndex);
                 Log::info("\nSHEET NAME === $sheetName");
 
@@ -124,7 +126,6 @@ class General
                                 ['code' => $programme_code],
                                 ['code' => $programme_code, 'name' => $programme_name]
                             );
-                            // Log::info("\nPROGRAMME CODE: " . $programme_code . ", PROGRAMME NAME: " . $programme_name);
                         }
                     }
                 } catch (\Throwable $th) {
