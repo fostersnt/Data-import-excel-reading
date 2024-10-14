@@ -152,7 +152,7 @@ class General
                             $programme_name = $split[0];
                             Programme::query()->updateOrCreate(
                                 ['code' => $programme_code],
-                                ['code' => $programme_code, 'name' => $programme_name]
+                                ['code' => trim($programme_code), 'name' => $programme_name]
                             );
                             Log::info("\nPROGRAMME CODE: " . $programme_code . ", PROGRAMME NAME: " . $programme_name);
                         }
