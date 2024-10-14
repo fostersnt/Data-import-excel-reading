@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('schools', function (Blueprint $table) {
             $table->id();
-            $table->string('code');
+            $table->string('code')->nullable();
             $table->string('name')->nullable();
             $table->string('gender')->nullable();
             $table->integer('num_of_programs')->nullable();
@@ -22,6 +22,7 @@ return new class extends Migration
             $table->integer('district_id')->nullable();
             $table->integer('location_id')->nullable();
             $table->integer('region_id')->nullable();
+            $table->char('category')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

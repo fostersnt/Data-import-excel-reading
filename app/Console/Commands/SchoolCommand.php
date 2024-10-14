@@ -61,17 +61,6 @@ class SchoolCommand extends Command
             503 => 'STEM'
         ];
 
-        //SCHOOL TYPES
-        foreach ($types as $type) {
-            try {
-                SchoolType::query()->updateOrCreate(
-                    ['name' => $type],
-                    ['name' => $type]
-                );
-            } catch (\Throwable $th) {
-                $this->info("\nSCHOOL TYPES === ". $th->getMessage());
-            }
-        }
 
         //SCHOOL TRACKS
         foreach ($tracks as $track) {
@@ -85,41 +74,6 @@ class SchoolCommand extends Command
             }
         }
 
-        //SCHOOL STATUSES
-        foreach ($statuses as $status) {
-            try {
-                SchoolStatus::query()->updateOrCreate(
-                    ['name' => $status],
-                    ['name' => $status]
-                );
-            } catch (\Throwable $th) {
-                $this->info("\nSCHOOL STATUSES === ". $th->getMessage());
-            }
-        }
-
-        //SCHOOL CATEGORIES
-        foreach ($school_categories as $school_category) {
-            try {
-                SchoolCategory::query()->updateOrCreate(
-                    ['name' => $school_category],
-                    ['name' => $school_category]
-                );
-            } catch (\Throwable $th) {
-                $this->info("\nSCHOOL CATEGORIES === ". $th->getMessage());
-            }
-        }
-
-        //GENDER
-        foreach ($genders as $gender) {
-            try {
-                SchoolCategory::query()->updateOrCreate(
-                    ['name' => $gender],
-                    ['name' => $gender]
-                );
-            } catch (\Throwable $th) {
-                $this->info("\nGENDER ERRORS === ". $th->getMessage());
-            }
-        }
 
         //PROGRAMMES
         foreach ($programmes as $key => $value) {
