@@ -11,7 +11,7 @@ class School extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'name', 'code_id', 'category_id', 'school_type_id', 'school_status_id'
+        'code', 'name', 'gender', 'num_of_programs', 'type', 'status', 'district_id', 'location_id', 'region_id'
     ];
 
     public function programme()

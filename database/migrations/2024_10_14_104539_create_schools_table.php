@@ -13,12 +13,16 @@ return new class extends Migration
     {
         Schema::create('schools', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->integer('school_code_id')->nullable();
-            $table->integer('school_track_id')->nullable();
-            $table->integer('school_category_id')->nullable();
-            $table->integer('school_type_id')->nullable();
-            $table->integer('school_status_id')->nullable();
+            $table->string('code');
+            $table->string('name')->nullable();
+            $table->string('gender')->nullable();
+            $table->integer('num_of_programs')->nullable();
+            $table->string('type')->nullable();
+            $table->string('status')->nullable();
+            $table->integer('district_id')->nullable();
+            $table->integer('location_id')->nullable();
+            $table->integer('region_id')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

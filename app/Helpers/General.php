@@ -15,35 +15,14 @@ use PhpOffice\PhpSpreadsheet\Reader\IReadFilter;
 
 class General
 {
-    public static function read_school_codes_and_location()
+    public static function read_schools_and_locations()
     {
         $filePath = storage_path('app/files/Government_Schools.xlsx');
         $spreadsheet = IOFactory::load($filePath);
         $mySheetNames = ['CAT A', 'CAT B', 'CAT C', 'CAT D'];
         $category = null;
         foreach ($spreadsheet->getSheetNames() as $sheetIndex => $sheetName) {
-            switch ($sheetName) {
-                case 'CAT A':
-                    $check = SchoolCategory::query()->where('name', 'A')->latest()->first();
-                    $category = $check ? $check->id : null;
-                    break;
-                case 'CAT B':
-                    $check = SchoolCategory::query()->where('name', 'B')->latest()->first();
-                    $category = $check ? $check->id : null;
-                    break;
-                case 'CAT C':
-                    $check = SchoolCategory::query()->where('name', 'C')->latest()->first();
-                    $category = $check ? $check->id : null;
-                    break;
-                case 'CAT D':
-                    $check = SchoolCategory::query()->where('name', 'D')->latest()->first();
-                    $category = $check ? $check->id : null;
-                    break;
 
-                default:
-                    $category = 'N/A';
-                    break;
-            }
             if (in_array($sheetName, $mySheetNames)) {
                 $sheet = $spreadsheet->getSheet($sheetIndex);
                 Log::info("\nSHEET NAME === $sheetName");
@@ -54,30 +33,39 @@ class General
                 try {
                     for ($row = 2; $row <= $highestRow; $row++) {
 
-                        $code = $sheet->getCell('D' . $row);
+                        $code = $sheet->getCell('D' . $row)->getValue();
+                        $school_name = $sheet->getCell('E' . $row)->getValue();
+                        $gender = $sheet->getCell('G' . $row)->getValue();
+                        // Log::info("\nCHECK VALUE === " . $sheet->getCell('P' . $row));
+                        $num_of_programs = $sheet->getCell('P' . $row)->getValue();
+                        $formatted = intval($num_of_programs);
+                        // $formatted = intval($num_of_programs);
+                        $status = $sheet->getCell('Q' . $row)->getValue();
+                        $type = $sheet->getCell('R' . $row)->getValue();
+
+                        $region_name = $sheet->getCell('B' . $row);
+                        $district_name = $sheet->getCell('C' . $row);
                         $location_name = $sheet->getCell('F' . $row);
-                        $school_name = $sheet->getCell('E' . $row);
 
-                        if ($code != null && $code != '') {
-                            SchoolCode::query()->updateOrCreate(
-                                ['code' => $code],
-                                // ['code' => $code, 'category_id' => $category]
-                            );
-                        }
-                        if ($location_name != null && $location_name != '') {
-                            Location::query()->updateOrCreate(
-                                ['name' => $location_name],
-                                ['name' => $location_name]
-                            );
-                        }
-                        if ($code != null && $code != '') {
-                            $code_check = SchoolCode::query()->where('code', $code)->latest()->first();
+                        $district = District::query()->updateOrCreate(['name' => $district_name], ['name' => $district_name]);
+                        $location = Location::query()->updateOrCreate(['name' => $location_name], ['name' => $location_name]);
+                        $region = Region::query()->updateOrCreate(['name' => $region_name], ['name' => $region_name]);
 
-                            School::query()->updateOrCreate(
-                                ['name' => $school_name],
-                                ['name' => $school_name, 'school_code_id' => $code_check->id, 'school_category_id' => $category]
-                            );
-                        }
+                        //Create a school
+                        School::query()->updateOrCreate(
+                            ['code' => $code],
+                            [
+                                'code' => $code,
+                                'name' => $school_name,
+                                'gender' => $gender,
+                                'num_of_programs' => $formatted,
+                                'type' => $type,
+                                'status' => $status,
+                                'district_id' => $district->id,
+                                'location' => $location->id,
+                                'region' => $region->id,
+                            ]
+                        );
                     }
                 } catch (\Throwable $th) {
                     Log::info("n\SCHOOL CODES ERROR: ", $th->getMessage() . ", LINE NUMBER: " . $th->getLine());
