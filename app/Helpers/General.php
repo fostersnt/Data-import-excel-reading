@@ -32,6 +32,9 @@ class General
 
                 $highestRow = $sheet->getHighestRow();
                 $highestColumn = $sheet->getHighestColumn();
+                $school = null;
+
+                $relationship_array = [];
 
                 try {
                     for ($row = 2; $row <= $highestRow; $row++) {
@@ -55,7 +58,7 @@ class General
                         $region = Region::query()->updateOrCreate(['name' => $region_name], ['name' => $region_name]);
 
                         //Create a school
-                        School::query()->updateOrCreate(
+                        $school = School::query()->updateOrCreate(
                             ['code' => $code],
                             [
                                 'code' => $code,
@@ -70,7 +73,56 @@ class General
                                 'category' => $category
                             ]
                         );
+
+
+
+                        if (strtolower($sheet->getCell('H' . $row)->getValue()) == 'x') {
+                            array_push($relationship_array, 1);
+                        }
+                        if (strtolower($sheet->getCell('I' . $row)->getValue()) == 'x') {
+                            array_push($relationship_array, 2);
+                        }
+                        if (strtolower($sheet->getCell('J' . $row)->getValue()) == 'x') {
+                            array_push($relationship_array, 3);
+                        }
+                        if (strtolower($sheet->getCell('K' . $row)->getValue()) == 'x') {
+                            array_push($relationship_array, 4);
+                        }
+                        if (strtolower($sheet->getCell('L' . $row)->getValue()) == 'x') {
+                            array_push($relationship_array, 5);
+                        }
+                        if (strtolower($sheet->getCell('M' . $row)->getValue()) == 'x') {
+                            array_push($relationship_array, 6);
+                        }
+                        if (strtolower($sheet->getCell('N' . $row)->getValue()) == 'x') {
+                            array_push($relationship_array, 7);
+                        }
+                        if (strtolower($sheet->getCell('O' . $row)->getValue()) == 'x') {
+                            array_push($relationship_array, 8);
+                        }
+
+                        $school->programme()->attach($relationship_array);
+
+                        $relationship_array = [];
+
+                        //Programme Association
+                        // $myRange = $sheet->rangeToArray("H$row:O$row", null, true, true, true);
+                        // $relationship_array = [];
                     }
+                    // foreach ($myRange as $myRow) {
+                    //     foreach ($myRow as $key => $value) {
+                    //         if ($key == 'H' && strtolower($value) == 'x') {
+                    //             array_push($relationship_array, 1);
+                    //         }
+
+                    //         if (count($relationship_array) > 0) {
+                    //             $school->programme()->attach($relationship_array);
+                    //         }
+                    //         Log::info("\nSCHOOL CODE === $code, PROGRAMME KEY === $key, PROGRAMME VALUE === $value");
+                    //         break;
+                    //     }
+                    //     // break;
+                    // }
                 } catch (\Throwable $th) {
                     Log::info("n\SCHOOL CODES ERROR: ", $th->getMessage() . ", LINE NUMBER: " . $th->getLine());
                 }
@@ -86,6 +138,65 @@ class General
         foreach ($spreadsheet->getSheetNames() as $sheetIndex => $sheetName) {
             if ($sheetName == 'CAT A') {
                 //Only CAT A is being used since it has same courses as CAT B, C, and D
+                $sheet = $spreadsheet->getSheet($sheetIndex);
+
+                $highestRow = $sheet->getHighestRow();
+                $highestColumn = $sheet->getHighestColumn();
+
+                try {
+                    $range = $sheet->rangeToArray('H1:O1', null, true, true, true);
+                    foreach ($range as $row) {
+                        foreach ($row as $columnLetter => $cellValue) {
+                            $split = explode('/', $cellValue);
+                            $programme_code = $split[1];
+                            $programme_name = $split[0];
+                            Programme::query()->updateOrCreate(
+                                ['code' => $programme_code],
+                                ['code' => $programme_code, 'name' => $programme_name]
+                            );
+                            Log::info("\nPROGRAMME CODE: " . $programme_code . ", PROGRAMME NAME: " . $programme_name);
+                        }
+                    }
+                } catch (\Throwable $th) {
+                    Log::info("\PROGRAMME NAMES ERROR: ", $th->getMessage() . ", LINE NUMBER: " . $th->getLine());
+                }
+            }
+            if ($sheetName == 'APPENDIX 1') {
+                $sheet = $spreadsheet->getSheet($sheetIndex);
+
+                $highestRow = $sheet->getHighestRow();
+                $highestColumn = $sheet->getHighestColumn();
+
+                try {
+                    $range = $sheet->rangeToArray('I2:BA2', null, true, true, true);
+                    foreach ($range as $row) {
+                        foreach ($row as $columnLetter => $cellValue) {
+                            $split = explode('/', $cellValue);
+                            $programme_code = $split[1];
+                            $programme_name = $split[0];
+                            Programme::query()->updateOrCreate(
+                                ['code' => $programme_code],
+                                ['code' => $programme_code, 'name' => $programme_name]
+                            );
+                        }
+                    }
+                } catch (\Throwable $th) {
+                    Log::info("\PROGRAMME NAMES ERROR: ", $th->getMessage() . ", LINE NUMBER: " . $th->getLine());
+                }
+            }
+        }
+    }
+
+    public static function asign_programme_to_school(School $school, $cell_range)
+    {
+        $filePath = storage_path('app/files/Government_Schools.xlsx');
+        $spreadsheet = IOFactory::load($filePath);
+
+        $mySheets = ['CAT A', 'CAT B', 'CAT C', 'CAT D'];
+
+        foreach ($spreadsheet->getSheetNames() as $sheetIndex => $sheetName) {
+            if (in_array($sheetName, $mySheets)) {
+
                 $sheet = $spreadsheet->getSheet($sheetIndex);
 
                 $highestRow = $sheet->getHighestRow();
