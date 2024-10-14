@@ -76,30 +76,39 @@ class General
 
 
 
-                        if (strtolower($sheet->getCell('H' . $row)->getValue()) == 'x') {
-                            array_push($relationship_array, 1);
+                        if (str_contains(strtolower($sheet->getCell('H' . $row)->getValue()), "Appendix '1'") ) {
+                            Log::info("\nAPPENDIX 1");
                         }
-                        if (strtolower($sheet->getCell('I' . $row)->getValue()) == 'x') {
-                            array_push($relationship_array, 2);
+                        else if (str_contains(strtolower($sheet->getCell('H' . $row)->getValue()), 'Appendix 6')) {
+                            Log::info("\nAPPENDIX 6");
                         }
-                        if (strtolower($sheet->getCell('J' . $row)->getValue()) == 'x') {
-                            array_push($relationship_array, 3);
+                        else {
+                            if (strtolower($sheet->getCell('H' . $row)->getValue()) == 'x') {
+                                array_push($relationship_array, 1);
+                            }
+                            if (strtolower($sheet->getCell('I' . $row)->getValue()) == 'x') {
+                                array_push($relationship_array, 2);
+                            }
+                            if (strtolower($sheet->getCell('J' . $row)->getValue()) == 'x') {
+                                array_push($relationship_array, 3);
+                            }
+                            if (strtolower($sheet->getCell('K' . $row)->getValue()) == 'x') {
+                                array_push($relationship_array, 4);
+                            }
+                            if (strtolower($sheet->getCell('L' . $row)->getValue()) == 'x') {
+                                array_push($relationship_array, 5);
+                            }
+                            if (strtolower($sheet->getCell('M' . $row)->getValue()) == 'x') {
+                                array_push($relationship_array, 6);
+                            }
+                            if (strtolower($sheet->getCell('N' . $row)->getValue()) == 'x') {
+                                array_push($relationship_array, 7);
+                            }
+                            if (strtolower($sheet->getCell('O' . $row)->getValue()) == 'x') {
+                                array_push($relationship_array, 8);
+                            }
                         }
-                        if (strtolower($sheet->getCell('K' . $row)->getValue()) == 'x') {
-                            array_push($relationship_array, 4);
-                        }
-                        if (strtolower($sheet->getCell('L' . $row)->getValue()) == 'x') {
-                            array_push($relationship_array, 5);
-                        }
-                        if (strtolower($sheet->getCell('M' . $row)->getValue()) == 'x') {
-                            array_push($relationship_array, 6);
-                        }
-                        if (strtolower($sheet->getCell('N' . $row)->getValue()) == 'x') {
-                            array_push($relationship_array, 7);
-                        }
-                        if (strtolower($sheet->getCell('O' . $row)->getValue()) == 'x') {
-                            array_push($relationship_array, 8);
-                        }
+
 
                         $school->programme()->attach($relationship_array);
 
