@@ -35,6 +35,11 @@ class SchoolCommand extends Command
             'single', 'transitiona (double)'
         ];
 
+        $regions = [
+            "Greater Accra", "Central", "Western", "Eastern", "Northern", "Upper East", "Upper West", "Volta", "Ashanti", "Bono", "Ahafo", "Bono East", "Western North", "North East", "Oti", "Savannah"
+        ];
+
+        //SCHOOL TYPES
         foreach ($types as $type) {
             try {
                 SchoolType::query()->createOrUpdate(
@@ -46,6 +51,7 @@ class SchoolCommand extends Command
             }
         }
 
+        //SCHOOL TRACKS
         foreach ($tracks as $track) {
             try {
                 SchoolTrack::query()->createOrUpdate(
@@ -54,6 +60,18 @@ class SchoolCommand extends Command
                 );
             } catch (\Throwable $th) {
                 $this->info("\nSCHOOL TRACKS === ", $th->getMessage());
+            }
+        }
+
+        //REGIONS
+        foreach ($regions as $region) {
+            try {
+                SchoolTrack::query()->createOrUpdate(
+                    ['name' => $region],
+                    ['name' => $region]
+                );
+            } catch (\Throwable $th) {
+                $this->info("\nREGIONS === ", $th->getMessage());
             }
         }
     }

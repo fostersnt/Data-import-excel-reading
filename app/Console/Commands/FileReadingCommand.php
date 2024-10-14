@@ -26,6 +26,6 @@ class FileReadingCommand extends Command
      */
     public function handle()
     {
-        General::read_excel_file();
+        General::read_school_codes();
     }
 }

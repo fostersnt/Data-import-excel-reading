@@ -14,7 +14,7 @@ class DataController extends Controller
 {
     public function readExistingFile()
     {
-        General::read_excel_file();
+        General::read_school_codes();
         return 'SUCCESS';
         // mail('foster.asante@gwosevo.com', 'TESTING', 'God is good');
         // Mail::to('foster.asante@gwosevo.com')->send(new TrialMail());

@@ -2,37 +2,74 @@
 
 namespace App\Helpers;
 
+use App\Models\Region;
+use App\Models\SchoolCode;
 use Illuminate\Support\Facades\Log;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Reader\IReadFilter;
 
 class General
 {
-    public static function read_excel_file()
+    public static function read_school_codes()
     {
         $filePath = storage_path('app/files/Government_Schools.xlsx');
         // Load the spreadsheet
         $spreadsheet = IOFactory::load($filePath);
+        $mySheetNames = ['CAT A', 'CAT B', 'CAT C', 'CAT D'];
+        foreach ($spreadsheet->getSheetNames() as $sheetIndex => $sheetName) {
+            if (in_array($sheetName, $mySheetNames)) {
+                $sheet = $spreadsheet->getSheet($sheetIndex);
+                Log::info("\nSHEET NAME === $sheetName");
 
+                $highestRow = $sheet->getHighestRow();
+                $highestColumn = $sheet->getHighestColumn();
+
+                try {
+                    for ($row = 2; $row <= $highestRow; $row++) {
+                        $code = $sheet->getCell('B' . $row);
+                        SchoolCode::query()->updateOrCreate(
+                            ['name' => $code],
+                            ['name' => $code]
+                        );
+                        Log::info("\nCODE: $code");
+                    }
+                } catch (\Throwable $th) {
+                    Log::info("\SCHOOL CODES ERROR: ", $th->getMessage() . ", LINE NUMBER: " . $th->getLine());
+                }
+            }
+        }
+    }
+
+    public static function read_school_regions()
+    {
+        $filePath = storage_path('app/files/Government_Schools.xlsx');
+        // Load the spreadsheet
+        $spreadsheet = IOFactory::load($filePath);
+        $mySheetNames = ['CAT A', 'CAT B', 'CAT C', 'CAT D'];
         // Iterate through each sheet
         foreach ($spreadsheet->getSheetNames() as $sheetIndex => $sheetName) {
 
-            // Get the sheet
-            if ($sheetIndex == 1) {
+            // Get the sheet, modify condition to choose the correct sheet
+            if (in_array($sheetName, $mySheetNames)) {
                 $sheet = $spreadsheet->getSheet($sheetIndex);
-                Log::info("\nSHEET INDEX === $sheetIndex, SHEET NAME === $sheetName");
+                Log::info("\nSHEET NAME === $sheetName");
+
                 // Get the highest row and column
                 $highestRow = $sheet->getHighestRow();
                 $highestColumn = $sheet->getHighestColumn();
 
-                // Loop through each row in the sheet
-                // for ($row = 1; $row <= $highestRow; $row++) {
-                //     $rowData = $sheet->rangeToArray('A' . $row . ':' . $highestColumn . $row, NULL, TRUE, FALSE);
-
-                //     $col1 = $rowData[0][0] ?? null;
-                //     $col2 = $rowData[0][1] ?? null;
-                //     $col3 = $rowData[0][2] ?? null;
-                // }
+                try {
+                    for ($row = 2; $row <= $highestRow; $row++) {
+                        $region_name = $sheet->getCell('B' . $row);
+                        Region::query()->updateOrCreate(
+                            ['name' => $region_name],
+                            ['name' => $region_name]
+                        );
+                        Log::info("\nCODE: $region_name");
+                    }
+                } catch (\Throwable $th) {
+                    Log::info("\nREGIONS ERROR: ", $th->getMessage() . ", LINE NUMBER: " . $th->getLine());
+                }
             }
         }
     }
