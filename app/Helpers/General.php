@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use App\Models\District;
 use App\Models\Region;
 use App\Models\SchoolCategory;
 use App\Models\SchoolCode;
@@ -105,6 +106,36 @@ class General
                             Region::query()->updateOrCreate(
                                 ['name' => $region_name],
                                 ['name' => $region_name]
+                            );
+                        }
+                    }
+                } catch (\Throwable $th) {
+                    Log::info("\nREGIONS ERROR: ", $th->getMessage() . ", LINE NUMBER: " . $th->getLine());
+                }
+            }
+        }
+    }
+
+    public static function read_school_districts()
+    {
+        $filePath = storage_path('app/files/Government_Schools.xlsx');
+        $spreadsheet = IOFactory::load($filePath);
+        $mySheetNames = ['CAT A', 'CAT B', 'CAT C', 'CAT D'];
+        foreach ($spreadsheet->getSheetNames() as $sheetIndex => $sheetName) {
+            if (in_array($sheetName, $mySheetNames)) {
+                $sheet = $spreadsheet->getSheet($sheetIndex);
+                Log::info("\nSHEET NAME === $sheetName");
+
+                $highestRow = $sheet->getHighestRow();
+                $highestColumn = $sheet->getHighestColumn();
+
+                try {
+                    for ($row = 2; $row <= $highestRow; $row++) {
+                        $district_name = $sheet->getCell('C' . $row);
+                        if ($district_name != null && $district_name != '') {
+                            District::query()->updateOrCreate(
+                                ['name' => $district_name],
+                                ['name' => $district_name]
                             );
                         }
                     }

@@ -13,4 +13,9 @@ class School extends Model
     protected $fillable = [
         'name', 'code_id', 'category_id', 'school_type_id', 'school_status_id'
     ];
+
+    public function programme()
+    {
+        return $this->belongsToMany(Programme::class, 'school_pivot_programmes');
+    }
 }
