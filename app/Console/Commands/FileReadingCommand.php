@@ -26,9 +26,9 @@ class FileReadingCommand extends Command
      */
     public function handle()
     {
+        General::read_school_programmes();
         // General::read_school_codes();
         // General::read_school_regions();
         // General::read_school_districts();
-        General::read_school_programmes();
     }
 }
