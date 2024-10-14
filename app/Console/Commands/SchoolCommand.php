@@ -15,7 +15,7 @@ class SchoolCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'app:school-command';
+    protected $signature = 'school:command';
 
     /**
      * The console command description.
@@ -45,68 +45,52 @@ class SchoolCommand extends Command
             'A', 'B', 'C', 'D'
         ];
 
-        // $regions = [
-        //     "Greater Accra", "Central", "Western", "Eastern", "Northern", "Upper East", "Upper West", "Volta", "Ashanti", "Bono", "Ahafo", "Bono East", "Western North", "North East", "Oti", "Savannah"
-        // ];
-
         //SCHOOL TYPES
         foreach ($types as $type) {
             try {
-                SchoolType::query()->createOrUpdate(
+                SchoolType::query()->updateOrCreate(
                     ['name' => $type],
                     ['name' => $type]
                 );
             } catch (\Throwable $th) {
-                $this->info("\nSCHOOL TYPES === ", $th->getMessage());
+                $this->info("\nSCHOOL TYPES === ". $th->getMessage());
             }
         }
 
         //SCHOOL TRACKS
         foreach ($tracks as $track) {
             try {
-                SchoolTrack::query()->createOrUpdate(
+                SchoolTrack::query()->updateOrCreate(
                     ['name' => $track],
                     ['name' => $track]
                 );
             } catch (\Throwable $th) {
-                $this->info("\nSCHOOL TRACKS === ", $th->getMessage());
+                $this->info("\nSCHOOL TRACKS === ". $th->getMessage());
             }
         }
 
         //SCHOOL STATUSES
         foreach ($statuses as $status) {
             try {
-                SchoolStatus::query()->createOrUpdate(
+                SchoolStatus::query()->updateOrCreate(
                     ['name' => $status],
                     ['name' => $status]
                 );
             } catch (\Throwable $th) {
-                $this->info("\nSCHOOL STATUSES === ", $th->getMessage());
+                $this->info("\nSCHOOL STATUSES === ". $th->getMessage());
             }
         }
 
         //SCHOOL CATEGORIES
         foreach ($school_categories as $school_category) {
             try {
-                SchoolCategory::query()->createOrUpdate(
+                SchoolCategory::query()->updateOrCreate(
                     ['name' => $school_category],
                     ['name' => $school_category]
                 );
             } catch (\Throwable $th) {
-                $this->info("\nSCHOOL CATEGORIES === ", $th->getMessage());
+                $this->info("\nSCHOOL CATEGORIES === ". $th->getMessage());
             }
         }
-
-        // //REGIONS
-        // foreach ($regions as $region) {
-        //     try {
-        //         SchoolTrack::query()->createOrUpdate(
-        //             ['name' => $region],
-        //             ['name' => $region]
-        //         );
-        //     } catch (\Throwable $th) {
-        //         $this->info("\nREGIONS === ", $th->getMessage());
-        //     }
-        // }
     }
 }

@@ -19,16 +19,16 @@ class General
         foreach ($spreadsheet->getSheetNames() as $sheetIndex => $sheetName) {
             switch ($sheetName) {
                 case 'CAT A':
-                    $category = 'A';
+                    $category = 1;
                     break;
                 case 'CAT B':
-                    $category = 'B';
+                    $category = 2;
                     break;
                 case 'CAT C':
-                    $category = 'C';
+                    $category = 3;
                     break;
                 case 'CAT D':
-                    $category = 'D';
+                    $category = 4;
                     break;
 
                 default:
