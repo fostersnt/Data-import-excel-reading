@@ -76,10 +76,10 @@ class General
 
 
 
-                        if (str_contains(strtolower($sheet->getCell('H' . $row)->getValue()), "Appendix '1'") ) {
+                        if (str_contains(strtolower($sheet->getCell('H' . $row)->getValue()), "appendix '1'") ) {
                             Log::info("\nAPPENDIX 1");
                         }
-                        else if (str_contains(strtolower($sheet->getCell('H' . $row)->getValue()), 'Appendix 6')) {
+                        else if (str_contains(strtolower($sheet->getCell('H' . $row)->getValue()), 'appendix 6')) {
                             Log::info("\nAPPENDIX 6");
                         }
                         else {
