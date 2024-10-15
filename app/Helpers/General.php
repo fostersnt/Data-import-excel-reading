@@ -37,7 +37,6 @@ class General
                 $highestRow = $sheet->getHighestRow();
                 $highestColumn = $sheet->getHighestColumn();
 
-                Log::info("\n$sheetName === $highestRow");
                 $school = null;
 
                 try {
@@ -57,7 +56,10 @@ class General
                         $location_name = $sheet->getCell('F' . $row);
 
                         if (strlen($code) == 5) {
-                            Log::info("\nINVALID SCHOOL CODE === " . $code);
+                            $code = "00$code";
+                        }
+                        if (strlen($code) == 5) {
+                            $code = "0$code";
                         }
 
                         $formatted = intval($num_of_programs);
@@ -340,25 +342,39 @@ class General
 
 
         $sheet = $spreadsheet->getSheet(8);
-
+        $total_left = [];
         // Log::info("\nSHEET NAME === " . $name);
         $highestRow = $sheet->getHighestRow();
         $highestColumn = $sheet->getHighestColumn();
 
         try {
-            for ($row = 3; $row <= 125; $row++) {
+            for ($row = 3; $row <= 122; $row++) {
+
                 $range = $sheet->rangeToArray("A$row:$highestColumn$row", null, true, true, true);
+
                 foreach ($range as $rangeRow) {
-                    Log::info("\nROW DATA === " . $rangeRow['D']);
+                    Log::info("\nFIRST CODE === " . $rangeRow['D']);
+
                     $school_check = School::query()->where('code', trim($rangeRow['D']))->first();
-                    Log::info("\nFOUND SCHOOL === " . json_encode($school_check));
+
                     if ($school_check != null) {
                         $school_check->update([
                             'is_special_boarding_catchment_area' => 'YES'
                         ]);
+                    } else {
+                        $district_name = $rangeRow['C'];
+                        $location_name = $rangeRow['C'];
+                        $district = District::query()->where('name', 'LIKE', "%$district_name%")->first();
+                        array_push($total_left, $rangeRow['D']);
                     }
                 }
+
+                // $range = $sheet->rangeToArray("A122:$highestColumn"."122", null, true, true, true);
+
+                //     Log::info("\nLAST RECORD === " . json_encode($range));
+                //     break;
             }
+            Log::info("\nMISSING CODES === " . json_encode($total_left));
         } catch (\Throwable $th) {
             Log::info("\nAPPENDIX 3 DATA ERROR: ", $th->getMessage() . ", LINE NUMBER: " . $th->getLine());
         }
