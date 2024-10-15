@@ -44,7 +44,7 @@ class General
                     for ($row = 2; $row <= $highestRow; $row++) {
                         $relationship_array = [];
 
-                        $code = $sheet->getCell('D' . $row)->getValue();
+                        $code = trim($sheet->getCell('D' . $row)->getValue());
                         $school_name = $sheet->getCell('E' . $row)->getValue();
                         $gender = $sheet->getCell('G' . $row)->getValue();
                         // Log::info("\nCHECK VALUE === " . $sheet->getCell('P' . $row));
@@ -56,17 +56,9 @@ class General
                         $district_name = $sheet->getCell('C' . $row);
                         $location_name = $sheet->getCell('F' . $row);
 
-                        // if ($sheetName == 'APPENDIX_1') {
-                        //     $category = $sheet->getCell('G' . $row)->getValue();
-                        //     $num_of_programs = $sheet->getCell('BB' . $row)->getValue();
-                        //     $status = $sheet->getCell('BC' . $row)->getValue();
-                        //     $type = 'TVET'; //Check the Guidelines worksheet for details
-                        // }
-                        // if ($sheetName == 'APPENDIX_6') {
-                        //     $num_of_programs = NULL;
-                        //     $status = $sheet->getCell('O' . $row)->getValue();
-                        //     $type = $sheet->getCell('P' . $row)->getValue(); //Check the Guidelines worksheet for details
-                        // }
+                        if (strlen($code) == 5) {
+                            Log::info("\nINVALID SCHOOL CODE === " . $code);
+                        }
 
                         $formatted = intval($num_of_programs);
                         $district = District::query()->updateOrCreate(['name' => $district_name], ['name' => $district_name]);
@@ -103,7 +95,7 @@ class General
                             $school = School::updateOrCreate(
                                 ['code' => $code],
                                 [
-                                    'code' => trim($code),
+                                    'code' => "$code",
                                     'name' => $school_name,
                                     'gender' => $gender,
                                     'num_of_programs' => $formatted,
@@ -214,6 +206,7 @@ class General
         }
     }
 
+    //APPENDIX 1 PROGRAMMES
     public static function asign_appendix_1_programmes()
     {
         $filePath = storage_path('app/files/Government_Schools.xlsx');
@@ -293,7 +286,7 @@ class General
         }
     }
 
-    //APPENDIX PROGRAMMES ASSIGNMENTS
+    //APPENDIX 6 PROGRAMMES ASSIGNMENTS
     public static function asign_appendix_6_programmes()
     {
         $filePath = storage_path('app/files/Government_Schools.xlsx');
@@ -336,6 +329,38 @@ class General
             }
         } catch (\Throwable $th) {
             Log::info("\nAPPENDIX PROGRAMME NAMES ERROR: ", $th->getMessage() . ", LINE NUMBER: " . $th->getLine());
+        }
+    }
+
+    //APPENDIX 3 PROGRAMMES ASSIGNMENTS
+    public static function read_appendix_3_programmes()
+    {
+        $filePath = storage_path('app/files/Government_Schools.xlsx');
+        $spreadsheet = IOFactory::load($filePath);
+
+
+        $sheet = $spreadsheet->getSheet(8);
+
+        // Log::info("\nSHEET NAME === " . $name);
+        $highestRow = $sheet->getHighestRow();
+        $highestColumn = $sheet->getHighestColumn();
+
+        try {
+            for ($row = 3; $row <= 125; $row++) {
+                $range = $sheet->rangeToArray("A$row:$highestColumn$row", null, true, true, true);
+                foreach ($range as $rangeRow) {
+                    Log::info("\nROW DATA === " . $rangeRow['D']);
+                    $school_check = School::query()->where('code', trim($rangeRow['D']))->first();
+                    Log::info("\nFOUND SCHOOL === " . json_encode($school_check));
+                    if ($school_check != null) {
+                        $school_check->update([
+                            'is_special_boarding_catchment_area' => 'YES'
+                        ]);
+                    }
+                }
+            }
+        } catch (\Throwable $th) {
+            Log::info("\nAPPENDIX 3 DATA ERROR: ", $th->getMessage() . ", LINE NUMBER: " . $th->getLine());
         }
     }
 }

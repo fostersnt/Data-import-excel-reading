@@ -32,6 +32,8 @@ class FileReadingCommand extends Command
         General::read_school_programmes();
         General::read_schools_and_locations();
         General::asign_appendix_1_programmes();
+        General::asign_appendix_6_programmes();
+        General::read_appendix_3_programmes();
         $this->info("DATA EXTRACTION HAS ENDED");
     }
 }
