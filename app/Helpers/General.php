@@ -190,6 +190,27 @@ class General
                     Log::info("\PROGRAMME NAMES ERROR: ", $th->getMessage() . ", LINE NUMBER: " . $th->getLine());
                 }
             }
+            // if ($sheetName == 'APPENDIX_6') {
+            //     $sheet = $spreadsheet->getSheet($sheetIndex);
+
+            //     $highestRow = $sheet->getHighestRow();
+            //     $highestColumn = $sheet->getHighestColumn();
+
+            //     try {
+            //         $range = $sheet->rangeToArray('H1:N1', null, true, true, true);
+            //         foreach ($range as $row) {
+            //             foreach ($row as $columnLetter => $cellValue) {
+            //                 $programme_name = $cellValue;
+            //                 Programme::query()->updateOrCreate(
+            //                     ['code' => $programme_name],
+            //                     ['name' => $programme_name]
+            //                 );
+            //             }
+            //         }
+            //     } catch (\Throwable $th) {
+            //         Log::info("\PROGRAMME NAMES ERROR: ", $th->getMessage() . ", LINE NUMBER: " . $th->getLine());
+            //     }
+            // }
         }
     }
 
@@ -214,52 +235,93 @@ class General
                     $school_check = School::query()->where('code', $rangeRow['D'])->first();
 
                     if ($school_check != null) {
-                        $rangeRow['I'] != null ? array_push($relationship_array, 17) : null;
-                        $rangeRow['J'] != null ? array_push($relationship_array, 18) : null;
-                        $rangeRow['K'] != null ? array_push($relationship_array, 19) : null;
-                        $rangeRow['L'] != null ? array_push($relationship_array, 20) : null;
-                        $rangeRow['M'] != null ? array_push($relationship_array, 21) : null;
-                        $rangeRow['N'] != null ? array_push($relationship_array, 22) : null;
-                        $rangeRow['O'] != null ? array_push($relationship_array, 23) : null;
-                        $rangeRow['P'] != null ? array_push($relationship_array, 24) : null;
-                        $rangeRow['Q'] != null ? array_push($relationship_array, 25) : null;
-                        $rangeRow['R'] != null ? array_push($relationship_array, 26) : null;
-                        $rangeRow['S'] != null ? array_push($relationship_array, 27) : null;
-                        $rangeRow['T'] != null ? array_push($relationship_array, 28) : null;
-                        $rangeRow['U'] != null ? array_push($relationship_array, 29) : null;
-                        $rangeRow['V'] != null ? array_push($relationship_array, 30) : null;
-                        $rangeRow['W'] != null ? array_push($relationship_array, 31) : null;
-                        $rangeRow['X'] != null ? array_push($relationship_array, 32) : null;
-                        $rangeRow['Y'] != null ? array_push($relationship_array, 33) : null;
-                        $rangeRow['Z'] != null ? array_push($relationship_array, 34) : null;
+                        $rangeRow['I'] != null ? array_push($relationship_array, 9) : null;
+                        $rangeRow['J'] != null ? array_push($relationship_array, 10) : null;
+                        $rangeRow['K'] != null ? array_push($relationship_array, 11) : null;
+                        $rangeRow['L'] != null ? array_push($relationship_array, 12) : null;
+                        $rangeRow['M'] != null ? array_push($relationship_array, 13) : null;
+                        $rangeRow['N'] != null ? array_push($relationship_array, 14) : null;
+                        $rangeRow['O'] != null ? array_push($relationship_array, 15) : null;
+                        $rangeRow['P'] != null ? array_push($relationship_array, 16) : null;
+                        $rangeRow['Q'] != null ? array_push($relationship_array, 17) : null;
+                        $rangeRow['R'] != null ? array_push($relationship_array, 18) : null;
+                        $rangeRow['S'] != null ? array_push($relationship_array, 19) : null;
+                        $rangeRow['T'] != null ? array_push($relationship_array, 20) : null;
+                        $rangeRow['U'] != null ? array_push($relationship_array, 21) : null;
+                        $rangeRow['V'] != null ? array_push($relationship_array, 22) : null;
+                        $rangeRow['W'] != null ? array_push($relationship_array, 23) : null;
+                        $rangeRow['X'] != null ? array_push($relationship_array, 24) : null;
+                        $rangeRow['Y'] != null ? array_push($relationship_array, 25) : null;
+                        $rangeRow['Z'] != null ? array_push($relationship_array, 26) : null;
                         //Continuation
-                        $rangeRow['AA'] != null ? array_push($relationship_array, 35) : null;
-                        $rangeRow['AB'] != null ? array_push($relationship_array, 36) : null;
-                        $rangeRow['AC'] != null ? array_push($relationship_array, 37) : null;
-                        $rangeRow['AD'] != null ? array_push($relationship_array, 38) : null;
-                        $rangeRow['AE'] != null ? array_push($relationship_array, 39) : null;
-                        $rangeRow['AF'] != null ? array_push($relationship_array, 40) : null;
-                        $rangeRow['AG'] != null ? array_push($relationship_array, 41) : null;
-                        $rangeRow['AH'] != null ? array_push($relationship_array, 42) : null;
-                        $rangeRow['AI'] != null ? array_push($relationship_array, 43) : null;
-                        $rangeRow['AJ'] != null ? array_push($relationship_array, 44) : null;
-                        $rangeRow['AK'] != null ? array_push($relationship_array, 45) : null;
-                        $rangeRow['AL'] != null ? array_push($relationship_array, 46) : null;
-                        $rangeRow['AM'] != null ? array_push($relationship_array, 47) : null;
-                        $rangeRow['AN'] != null ? array_push($relationship_array, 48) : null;
-                        $rangeRow['AO'] != null ? array_push($relationship_array, 49) : null;
-                        $rangeRow['AP'] != null ? array_push($relationship_array, 50) : null;
-                        $rangeRow['AQ'] != null ? array_push($relationship_array, 51) : null;
-                        $rangeRow['AR'] != null ? array_push($relationship_array, 52) : null;
-                        $rangeRow['AS'] != null ? array_push($relationship_array, 53) : null;
-                        $rangeRow['AT'] != null ? array_push($relationship_array, 54) : null;
-                        $rangeRow['AU'] != null ? array_push($relationship_array, 55) : null;
-                        $rangeRow['AV'] != null ? array_push($relationship_array, 56) : null;
-                        $rangeRow['AW'] != null ? array_push($relationship_array, 57) : null;
-                        $rangeRow['AX'] != null ? array_push($relationship_array, 58) : null;
-                        $rangeRow['AY'] != null ? array_push($relationship_array, 59) : null;
-                        $rangeRow['AZ'] != null ? array_push($relationship_array, 60) : null;
-                        $rangeRow['BA'] != null ? array_push($relationship_array, 61) : null;
+                        $rangeRow['AA'] != null ? array_push($relationship_array, 27) : null;
+                        $rangeRow['AB'] != null ? array_push($relationship_array, 28) : null;
+                        $rangeRow['AC'] != null ? array_push($relationship_array, 29) : null;
+                        $rangeRow['AD'] != null ? array_push($relationship_array, 30) : null;
+                        $rangeRow['AE'] != null ? array_push($relationship_array, 31) : null;
+                        $rangeRow['AF'] != null ? array_push($relationship_array, 32) : null;
+                        $rangeRow['AG'] != null ? array_push($relationship_array, 33) : null;
+                        $rangeRow['AH'] != null ? array_push($relationship_array, 34) : null;
+                        $rangeRow['AI'] != null ? array_push($relationship_array, 35) : null;
+                        $rangeRow['AJ'] != null ? array_push($relationship_array, 36) : null;
+                        $rangeRow['AK'] != null ? array_push($relationship_array, 37) : null;
+                        $rangeRow['AL'] != null ? array_push($relationship_array, 38) : null;
+                        $rangeRow['AM'] != null ? array_push($relationship_array, 39) : null;
+                        $rangeRow['AN'] != null ? array_push($relationship_array, 40) : null;
+                        $rangeRow['AO'] != null ? array_push($relationship_array, 41) : null;
+                        $rangeRow['AP'] != null ? array_push($relationship_array, 42) : null;
+                        $rangeRow['AQ'] != null ? array_push($relationship_array, 43) : null;
+                        $rangeRow['AR'] != null ? array_push($relationship_array, 44) : null;
+                        $rangeRow['AS'] != null ? array_push($relationship_array, 45) : null;
+                        $rangeRow['AT'] != null ? array_push($relationship_array, 46) : null;
+                        $rangeRow['AU'] != null ? array_push($relationship_array, 47) : null;
+                        $rangeRow['AV'] != null ? array_push($relationship_array, 48) : null;
+                        $rangeRow['AW'] != null ? array_push($relationship_array, 49) : null;
+                        $rangeRow['AX'] != null ? array_push($relationship_array, 50) : null;
+                        $rangeRow['AY'] != null ? array_push($relationship_array, 51) : null;
+                        $rangeRow['AZ'] != null ? array_push($relationship_array, 52) : null;
+                        $rangeRow['BA'] != null ? array_push($relationship_array, 53) : null;
+
+                        if (count($relationship_array) > 0) {
+                            $school_check->programme()->attach($relationship_array);
+                        }
+                    }
+                }
+            }
+        } catch (\Throwable $th) {
+            Log::info("\nAPPENDIX PROGRAMME NAMES ERROR: ", $th->getMessage() . ", LINE NUMBER: " . $th->getLine());
+        }
+    }
+
+    //APPENDIX PROGRAMMES ASSIGNMENTS
+    public static function asign_appendix_6_programmes()
+    {
+        $filePath = storage_path('app/files/Government_Schools.xlsx');
+        $spreadsheet = IOFactory::load($filePath);
+
+
+        $sheet = $spreadsheet->getSheet(11);
+
+        // Log::info("\nSHEET NAME === " . $name);
+        $highestRow = $sheet->getHighestRow();
+        $highestColumn = $sheet->getHighestColumn();
+
+        try {
+            $relationship_array = [];
+            for ($row = 2; $row <= $highestRow; $row++) {
+                $range = $sheet->rangeToArray("A$row:$highestColumn$row", null, true, true, true);
+                foreach ($range as $rangeRow) {
+
+                    $school_check = School::query()->where('code', $rangeRow['D'])->first();
+
+                    if ($school_check != null) {
+                        $rangeRow['H'] != null && strtolower($rangeRow['H']) == 'x' ? array_push($relationship_array, 17) : null;
+                        $rangeRow['I'] != null && strtolower($rangeRow['I']) == 'x' ? array_push($relationship_array, 17) : null;
+                        $rangeRow['J'] != null && strtolower($rangeRow['J']) == 'x' ? array_push($relationship_array, 18) : null;
+                        $rangeRow['K'] != null && strtolower($rangeRow['K']) == 'x' ? array_push($relationship_array, 19) : null;
+                        $rangeRow['L'] != null && strtolower($rangeRow['L']) == 'x' ? array_push($relationship_array, 20) : null;
+                        $rangeRow['M'] != null && strtolower($rangeRow['M']) == 'x' ? array_push($relationship_array, 21) : null;
+                        $rangeRow['N'] != null && strtolower($rangeRow['N']) == 'x' ? array_push($relationship_array, 22) : null;
 
                         if (count($relationship_array) > 0) {
                             $school_check->programme()->attach($relationship_array);
