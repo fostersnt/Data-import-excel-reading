@@ -324,7 +324,12 @@ class General
                         $rangeRow['N'] != null && strtolower($rangeRow['N']) == 'x' ? array_push($relationship_array, 22) : null;
 
                         if (count($relationship_array) > 0) {
-                            $school_check->programme()->attach($relationship_array);
+                            foreach ($relationship_array as $value) {
+                                $programme_check = SchoolProgramme::query()->where('school_id', $school_check->id)->where('programme_id', $value);
+                                if ($programme_check == null) {
+                                    $school_check->programme()->attach($value);
+                                }
+                            }
                         }
                     }
                 }
