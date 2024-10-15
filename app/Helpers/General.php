@@ -190,27 +190,27 @@ class General
                     Log::info("\PROGRAMME NAMES ERROR: ", $th->getMessage() . ", LINE NUMBER: " . $th->getLine());
                 }
             }
-            // if ($sheetName == 'APPENDIX_6') {
-            //     $sheet = $spreadsheet->getSheet($sheetIndex);
+            if ($sheetName == 'APPENDIX_6') {
+                $sheet = $spreadsheet->getSheet($sheetIndex);
 
-            //     $highestRow = $sheet->getHighestRow();
-            //     $highestColumn = $sheet->getHighestColumn();
+                $highestRow = $sheet->getHighestRow();
+                $highestColumn = $sheet->getHighestColumn();
 
-            //     try {
-            //         $range = $sheet->rangeToArray('H1:N1', null, true, true, true);
-            //         foreach ($range as $row) {
-            //             foreach ($row as $columnLetter => $cellValue) {
-            //                 $programme_name = $cellValue;
-            //                 Programme::query()->updateOrCreate(
-            //                     ['code' => $programme_name],
-            //                     ['name' => $programme_name]
-            //                 );
-            //             }
-            //         }
-            //     } catch (\Throwable $th) {
-            //         Log::info("\PROGRAMME NAMES ERROR: ", $th->getMessage() . ", LINE NUMBER: " . $th->getLine());
-            //     }
-            // }
+                try {
+                    $range = $sheet->rangeToArray('H1:N1', null, true, true, true);
+                    foreach ($range as $row) {
+                        foreach ($row as $columnLetter => $cellValue) {
+                            $programme_name = $cellValue;
+                            Programme::query()->updateOrCreate(
+                                ['name' => $programme_name],
+                                ['name' => $programme_name]
+                            );
+                        }
+                    }
+                } catch (\Throwable $th) {
+                    Log::info("\PROGRAMME NAMES ERROR: ", $th->getMessage() . ", LINE NUMBER: " . $th->getLine());
+                }
+            }
         }
     }
 
