@@ -30,8 +30,10 @@ class FileReadingCommand extends Command
     {
         // General::read_school_regions();
         // General::read_school_districts();
+        $this->info("DATA EXTRACTION HAS BEGUN");
+        General::read_school_programmes();
         General::read_schools_and_locations();
-        // General::read_school_programmes();
+        $this->info("DATA EXTRACTION HAS ENDED");
         // $school = School::query()->first();
         // Log::info("\nPROGRAMMES FOR " . $school->name . " === " . json_encode($school->programme));
         // $school->programme()->attach([1, 3]);

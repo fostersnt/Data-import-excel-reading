@@ -14,6 +14,6 @@ class Programme extends Model
 
     public function school()
     {
-        return $this->belongsToMany(School::class, 'school_pivot_programmes');
+        return $this->belongsToMany(School::class, 'school_programmes')->withTimestamps();
     }
 }
