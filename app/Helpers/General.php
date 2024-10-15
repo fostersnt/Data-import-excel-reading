@@ -58,7 +58,7 @@ class General
                         if (strlen($code) == 5) {
                             $code = "00$code";
                         }
-                        if (strlen($code) == 5) {
+                        if (strlen($code) == 6) {
                             $code = "0$code";
                         }
 
