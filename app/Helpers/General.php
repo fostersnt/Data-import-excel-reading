@@ -9,6 +9,7 @@ use App\Models\Region;
 use App\Models\School;
 use App\Models\SchoolCategory;
 use App\Models\SchoolCode;
+use App\Models\SchoolProgramme;
 use Illuminate\Support\Facades\Log;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Reader\IReadFilter;
@@ -39,10 +40,9 @@ class General
                 Log::info("\n$sheetName === $highestRow");
                 $school = null;
 
-                $relationship_array = [];
-
                 try {
                     for ($row = 2; $row <= $highestRow; $row++) {
+                        $relationship_array = [];
 
                         $code = $sheet->getCell('D' . $row)->getValue();
                         $school_name = $sheet->getCell('E' . $row)->getValue();
@@ -73,46 +73,29 @@ class General
                         $location = Location::query()->updateOrCreate(['name' => $location_name], ['name' => $location_name]);
                         $region = Region::query()->updateOrCreate(['name' => $region_name], ['name' => $region_name]);
 
-
-
-                        if (str_contains(strtolower($sheet->getCell('H' . $row)->getValue()), "appendix '1'")) {
-                            // $sheet = $spreadsheet->setActiveSheetIndexByName('APPENDIX_1');
-                            // Log::info("\nAPPENDIX 1 SCHOOL CODE === " . $sheet->getCell('D' . $row)->getValue());
-                        } else if (str_contains(strtolower($sheet->getCell('H' . $row)->getValue()), 'appendix 6')) {
-                            // $appendix_6_sheet = $spreadsheet->setActiveSheetIndexByName('APPENDIX_6');
-                            // $appendix_6_HighestRow = $appendix_6_sheet->getHighestRow();
-                            // for ($appendix_6_row = 2; $appendix_6_row <= $appendix_6_HighestRow; $appendix_6_row++) {
-                            //     if ($code == $sheet->getCell('D' . $appendix_6_row)->getValue()) {
-                            //         Log::info("\nCURRENT ROW NUMBER === " . $appendix_6_row);
-                            //         Log::info("\nAPPENDIX 6 SCHOOL CODE === " . $sheet->getCell('D' . $appendix_6_row)->getValue());
-                            //         break;
-                            //     }
-                            // }
-                        } else {
-                            if (strtolower($sheet->getCell('H' . $row)->getValue()) == 'x') {
-                                array_push($relationship_array, 1);
-                            }
-                            if (strtolower($sheet->getCell('I' . $row)->getValue()) == 'x') {
-                                array_push($relationship_array, 2);
-                            }
-                            if (strtolower($sheet->getCell('J' . $row)->getValue()) == 'x') {
-                                array_push($relationship_array, 3);
-                            }
-                            if (strtolower($sheet->getCell('K' . $row)->getValue()) == 'x') {
-                                array_push($relationship_array, 4);
-                            }
-                            if (strtolower($sheet->getCell('L' . $row)->getValue()) == 'x') {
-                                array_push($relationship_array, 5);
-                            }
-                            if (strtolower($sheet->getCell('M' . $row)->getValue()) == 'x') {
-                                array_push($relationship_array, 6);
-                            }
-                            if (strtolower($sheet->getCell('N' . $row)->getValue()) == 'x') {
-                                array_push($relationship_array, 7);
-                            }
-                            if (strtolower($sheet->getCell('O' . $row)->getValue()) == 'x') {
-                                array_push($relationship_array, 8);
-                            }
+                        if (strtolower($sheet->getCell('H' . $row)->getValue()) == 'x') {
+                            array_push($relationship_array, 1);
+                        }
+                        if (strtolower($sheet->getCell('I' . $row)->getValue()) == 'x') {
+                            array_push($relationship_array, 2);
+                        }
+                        if (strtolower($sheet->getCell('J' . $row)->getValue()) == 'x') {
+                            array_push($relationship_array, 3);
+                        }
+                        if (strtolower($sheet->getCell('K' . $row)->getValue()) == 'x') {
+                            array_push($relationship_array, 4);
+                        }
+                        if (strtolower($sheet->getCell('L' . $row)->getValue()) == 'x') {
+                            array_push($relationship_array, 5);
+                        }
+                        if (strtolower($sheet->getCell('M' . $row)->getValue()) == 'x') {
+                            array_push($relationship_array, 6);
+                        }
+                        if (strtolower($sheet->getCell('N' . $row)->getValue()) == 'x') {
+                            array_push($relationship_array, 7);
+                        }
+                        if (strtolower($sheet->getCell('O' . $row)->getValue()) == 'x') {
+                            array_push($relationship_array, 8);
                         }
 
                         if ($code != null && $code != '') {
@@ -133,29 +116,19 @@ class General
                                 ]
                             );
 
-                            $school->programme()->attach($relationship_array);
+                            $unique_result = array_unique($relationship_array);
+                            if (count($unique_result) > 0) {
+                                foreach ($unique_result as $value) {
+                                    $check = SchoolProgramme::query()->where('school_id', $school->id)->where('programme_id', $value)->first();
+                                    if ($check == null) {
+                                        $school->programme()->attach($unique_result);
+                                    }
+                                }
+                            }
                         }
 
                         $relationship_array = [];
-
-                        //Programme Association
-                        // $myRange = $sheet->rangeToArray("H$row:O$row", null, true, true, true);
-                        // $relationship_array = [];
                     }
-                    // foreach ($myRange as $myRow) {
-                    //     foreach ($myRow as $key => $value) {
-                    //         if ($key == 'H' && strtolower($value) == 'x') {
-                    //             array_push($relationship_array, 1);
-                    //         }
-
-                    //         if (count($relationship_array) > 0) {
-                    //             $school->programme()->attach($relationship_array);
-                    //         }
-                    //         Log::info("\nSCHOOL CODE === $code, PROGRAMME KEY === $key, PROGRAMME VALUE === $value");
-                    //         break;
-                    //     }
-                    //     // break;
-                    // }
                 } catch (\Throwable $th) {
                     Log::info("n\SCHOOL CODES ERROR: ", $th->getMessage() . ", LINE NUMBER: " . $th->getLine());
                 }
