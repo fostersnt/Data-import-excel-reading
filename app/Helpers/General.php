@@ -19,19 +19,24 @@ class General
     {
         $filePath = storage_path('app/files/Government_Schools.xlsx');
         $spreadsheet = IOFactory::load($filePath);
+        // $mySheetNames = ['CAT A', 'CAT B', 'CAT C', 'CAT D', 'APPENDIX_1', 'APPENDIX_6'];
         $mySheetNames = ['CAT A', 'CAT B', 'CAT C', 'CAT D'];
         foreach ($spreadsheet->getSheetNames() as $sheetIndex => $sheetName) {
-
+            // Log::info("\nSHEET NAME === " . $sheetName);
             if (in_array($sheetName, $mySheetNames)) {
+                $category = NULL;
+                if (str_contains(strtolower($sheetName), 'cat')) {
+                    $split = explode(' ', $sheetName);
+                    $category = $split[1];
+                }
 
-                $split = explode(' ', $sheetName);
-                $category = $split[1];
-
+                // $sheet = $spreadsheet->getSheet($sheetIndex);
                 $sheet = $spreadsheet->getSheet($sheetIndex);
-                Log::info("\nSHEET NAME === $sheetName");
 
                 $highestRow = $sheet->getHighestRow();
                 $highestColumn = $sheet->getHighestColumn();
+
+                Log::info("\n$sheetName === $highestRow");
                 $school = null;
 
                 $relationship_array = [];
@@ -44,8 +49,6 @@ class General
                         $gender = $sheet->getCell('G' . $row)->getValue();
                         // Log::info("\nCHECK VALUE === " . $sheet->getCell('P' . $row));
                         $num_of_programs = $sheet->getCell('P' . $row)->getValue();
-                        $formatted = intval($num_of_programs);
-                        // $formatted = intval($num_of_programs);
                         $status = $sheet->getCell('Q' . $row)->getValue();
                         $type = $sheet->getCell('R' . $row)->getValue();
 
@@ -53,36 +56,39 @@ class General
                         $district_name = $sheet->getCell('C' . $row);
                         $location_name = $sheet->getCell('F' . $row);
 
+                        // if ($sheetName == 'APPENDIX_1') {
+                        //     $category = $sheet->getCell('G' . $row)->getValue();
+                        //     $num_of_programs = $sheet->getCell('BB' . $row)->getValue();
+                        //     $status = $sheet->getCell('BC' . $row)->getValue();
+                        //     $type = 'TVET'; //Check the Guidelines worksheet for details
+                        // }
+                        // if ($sheetName == 'APPENDIX_6') {
+                        //     $num_of_programs = NULL;
+                        //     $status = $sheet->getCell('O' . $row)->getValue();
+                        //     $type = $sheet->getCell('P' . $row)->getValue(); //Check the Guidelines worksheet for details
+                        // }
+
+                        $formatted = intval($num_of_programs);
                         $district = District::query()->updateOrCreate(['name' => $district_name], ['name' => $district_name]);
                         $location = Location::query()->updateOrCreate(['name' => $location_name], ['name' => $location_name]);
                         $region = Region::query()->updateOrCreate(['name' => $region_name], ['name' => $region_name]);
 
-                        //Create a school
-                        $school = School::query()->updateOrCreate(
-                            ['code' => $code],
-                            [
-                                'code' => $code,
-                                'name' => $school_name,
-                                'gender' => $gender,
-                                'num_of_programs' => $formatted,
-                                'type' => $type,
-                                'status' => $status,
-                                'district_id' => $district->id,
-                                'location_id' => $location->id,
-                                'region_id' => $region->id,
-                                'category' => $category
-                            ]
-                        );
 
 
-
-                        if (str_contains(strtolower($sheet->getCell('H' . $row)->getValue()), "appendix '1'") ) {
-                            Log::info("\nAPPENDIX 1");
-                        }
-                        else if (str_contains(strtolower($sheet->getCell('H' . $row)->getValue()), 'appendix 6')) {
-                            Log::info("\nAPPENDIX 6");
-                        }
-                        else {
+                        if (str_contains(strtolower($sheet->getCell('H' . $row)->getValue()), "appendix '1'")) {
+                            // $sheet = $spreadsheet->setActiveSheetIndexByName('APPENDIX_1');
+                            // Log::info("\nAPPENDIX 1 SCHOOL CODE === " . $sheet->getCell('D' . $row)->getValue());
+                        } else if (str_contains(strtolower($sheet->getCell('H' . $row)->getValue()), 'appendix 6')) {
+                            // $appendix_6_sheet = $spreadsheet->setActiveSheetIndexByName('APPENDIX_6');
+                            // $appendix_6_HighestRow = $appendix_6_sheet->getHighestRow();
+                            // for ($appendix_6_row = 2; $appendix_6_row <= $appendix_6_HighestRow; $appendix_6_row++) {
+                            //     if ($code == $sheet->getCell('D' . $appendix_6_row)->getValue()) {
+                            //         Log::info("\nCURRENT ROW NUMBER === " . $appendix_6_row);
+                            //         Log::info("\nAPPENDIX 6 SCHOOL CODE === " . $sheet->getCell('D' . $appendix_6_row)->getValue());
+                            //         break;
+                            //     }
+                            // }
+                        } else {
                             if (strtolower($sheet->getCell('H' . $row)->getValue()) == 'x') {
                                 array_push($relationship_array, 1);
                             }
@@ -109,8 +115,26 @@ class General
                             }
                         }
 
+                        if ($code != null && $code != '') {
+                            //Create a school
+                            $school = School::updateOrCreate(
+                                ['code' => $code],
+                                [
+                                    'code' => trim($code),
+                                    'name' => $school_name,
+                                    'gender' => $gender,
+                                    'num_of_programs' => $formatted,
+                                    'type' => $type,
+                                    'status' => $status,
+                                    'district_id' => $district->id,
+                                    'location_id' => $location->id,
+                                    'region_id' => $region->id,
+                                    'category' => $category
+                                ]
+                            );
 
-                        $school->programme()->attach($relationship_array);
+                            $school->programme()->attach($relationship_array);
+                        }
 
                         $relationship_array = [];
 
@@ -170,14 +194,14 @@ class General
                     Log::info("\PROGRAMME NAMES ERROR: ", $th->getMessage() . ", LINE NUMBER: " . $th->getLine());
                 }
             }
-            if ($sheetName == 'APPENDIX 1') {
+            if ($sheetName == 'APPENDIX_1') {
                 $sheet = $spreadsheet->getSheet($sheetIndex);
 
                 $highestRow = $sheet->getHighestRow();
                 $highestColumn = $sheet->getHighestColumn();
 
                 try {
-                    $range = $sheet->rangeToArray('I2:BA2', null, true, true, true);
+                    $range = $sheet->rangeToArray('I1:BA1', null, true, true, true);
                     foreach ($range as $row) {
                         foreach ($row as $columnLetter => $cellValue) {
                             $split = explode('/', $cellValue);
@@ -196,62 +220,82 @@ class General
         }
     }
 
-    public static function asign_programme_to_school(School $school, $cell_range)
+    public static function asign_appendix_1_programmes()
     {
         $filePath = storage_path('app/files/Government_Schools.xlsx');
         $spreadsheet = IOFactory::load($filePath);
 
-        $mySheets = ['CAT A', 'CAT B', 'CAT C', 'CAT D'];
 
-        foreach ($spreadsheet->getSheetNames() as $sheetIndex => $sheetName) {
-            if (in_array($sheetName, $mySheets)) {
+        $sheet = $spreadsheet->getSheet(6);
 
-                $sheet = $spreadsheet->getSheet($sheetIndex);
+        // Log::info("\nSHEET NAME === " . $name);
+        $highestRow = $sheet->getHighestRow();
+        $highestColumn = $sheet->getHighestColumn();
 
-                $highestRow = $sheet->getHighestRow();
-                $highestColumn = $sheet->getHighestColumn();
+        try {
+            $relationship_array = [];
+            for ($row = 2; $row <= $highestRow; $row++) {
+                $range = $sheet->rangeToArray("A$row:$highestColumn$row", null, true, true, true);
+                foreach ($range as $rangeRow) {
 
-                try {
-                    $range = $sheet->rangeToArray('H1:O1', null, true, true, true);
-                    foreach ($range as $row) {
-                        foreach ($row as $columnLetter => $cellValue) {
-                            $split = explode('/', $cellValue);
-                            $programme_code = $split[1];
-                            $programme_name = $split[0];
-                            Programme::query()->updateOrCreate(
-                                ['code' => $programme_code],
-                                ['code' => $programme_code, 'name' => $programme_name]
-                            );
-                            Log::info("\nPROGRAMME CODE: " . $programme_code . ", PROGRAMME NAME: " . $programme_name);
+                    $school_check = School::query()->where('code', $rangeRow['D'])->first();
+
+                    if ($school_check != null) {
+                        $rangeRow['I'] != null ? array_push($relationship_array, 17) : null;
+                        $rangeRow['J'] != null ? array_push($relationship_array, 18) : null;
+                        $rangeRow['K'] != null ? array_push($relationship_array, 19) : null;
+                        $rangeRow['L'] != null ? array_push($relationship_array, 20) : null;
+                        $rangeRow['M'] != null ? array_push($relationship_array, 21) : null;
+                        $rangeRow['N'] != null ? array_push($relationship_array, 22) : null;
+                        $rangeRow['O'] != null ? array_push($relationship_array, 23) : null;
+                        $rangeRow['P'] != null ? array_push($relationship_array, 24) : null;
+                        $rangeRow['Q'] != null ? array_push($relationship_array, 25) : null;
+                        $rangeRow['R'] != null ? array_push($relationship_array, 26) : null;
+                        $rangeRow['S'] != null ? array_push($relationship_array, 27) : null;
+                        $rangeRow['T'] != null ? array_push($relationship_array, 28) : null;
+                        $rangeRow['U'] != null ? array_push($relationship_array, 29) : null;
+                        $rangeRow['V'] != null ? array_push($relationship_array, 30) : null;
+                        $rangeRow['W'] != null ? array_push($relationship_array, 31) : null;
+                        $rangeRow['X'] != null ? array_push($relationship_array, 32) : null;
+                        $rangeRow['Y'] != null ? array_push($relationship_array, 33) : null;
+                        $rangeRow['Z'] != null ? array_push($relationship_array, 34) : null;
+                        //Continuation
+                        $rangeRow['AA'] != null ? array_push($relationship_array, 35) : null;
+                        $rangeRow['AB'] != null ? array_push($relationship_array, 36) : null;
+                        $rangeRow['AC'] != null ? array_push($relationship_array, 37) : null;
+                        $rangeRow['AD'] != null ? array_push($relationship_array, 38) : null;
+                        $rangeRow['AE'] != null ? array_push($relationship_array, 39) : null;
+                        $rangeRow['AF'] != null ? array_push($relationship_array, 40) : null;
+                        $rangeRow['AG'] != null ? array_push($relationship_array, 41) : null;
+                        $rangeRow['AH'] != null ? array_push($relationship_array, 42) : null;
+                        $rangeRow['AI'] != null ? array_push($relationship_array, 43) : null;
+                        $rangeRow['AJ'] != null ? array_push($relationship_array, 44) : null;
+                        $rangeRow['AK'] != null ? array_push($relationship_array, 45) : null;
+                        $rangeRow['AL'] != null ? array_push($relationship_array, 46) : null;
+                        $rangeRow['AM'] != null ? array_push($relationship_array, 47) : null;
+                        $rangeRow['AN'] != null ? array_push($relationship_array, 48) : null;
+                        $rangeRow['AO'] != null ? array_push($relationship_array, 49) : null;
+                        $rangeRow['AP'] != null ? array_push($relationship_array, 50) : null;
+                        $rangeRow['AQ'] != null ? array_push($relationship_array, 51) : null;
+                        $rangeRow['AR'] != null ? array_push($relationship_array, 52) : null;
+                        $rangeRow['AS'] != null ? array_push($relationship_array, 53) : null;
+                        $rangeRow['AT'] != null ? array_push($relationship_array, 54) : null;
+                        $rangeRow['AU'] != null ? array_push($relationship_array, 55) : null;
+                        $rangeRow['AV'] != null ? array_push($relationship_array, 56) : null;
+                        $rangeRow['AW'] != null ? array_push($relationship_array, 57) : null;
+                        $rangeRow['AX'] != null ? array_push($relationship_array, 58) : null;
+                        $rangeRow['AY'] != null ? array_push($relationship_array, 59) : null;
+                        $rangeRow['AZ'] != null ? array_push($relationship_array, 60) : null;
+                        $rangeRow['BA'] != null ? array_push($relationship_array, 61) : null;
+
+                        if (count($relationship_array) > 0) {
+                            $school_check->programme()->attach($relationship_array);
                         }
                     }
-                } catch (\Throwable $th) {
-                    Log::info("\PROGRAMME NAMES ERROR: ", $th->getMessage() . ", LINE NUMBER: " . $th->getLine());
                 }
             }
-            if ($sheetName == 'APPENDIX 1') {
-                $sheet = $spreadsheet->getSheet($sheetIndex);
-
-                $highestRow = $sheet->getHighestRow();
-                $highestColumn = $sheet->getHighestColumn();
-
-                try {
-                    $range = $sheet->rangeToArray('I2:BA2', null, true, true, true);
-                    foreach ($range as $row) {
-                        foreach ($row as $columnLetter => $cellValue) {
-                            $split = explode('/', $cellValue);
-                            $programme_code = $split[1];
-                            $programme_name = $split[0];
-                            Programme::query()->updateOrCreate(
-                                ['code' => $programme_code],
-                                ['code' => $programme_code, 'name' => $programme_name]
-                            );
-                        }
-                    }
-                } catch (\Throwable $th) {
-                    Log::info("\PROGRAMME NAMES ERROR: ", $th->getMessage() . ", LINE NUMBER: " . $th->getLine());
-                }
-            }
+        } catch (\Throwable $th) {
+            Log::info("\nAPPENDIX PROGRAMME NAMES ERROR: ", $th->getMessage() . ", LINE NUMBER: " . $th->getLine());
         }
     }
 }
