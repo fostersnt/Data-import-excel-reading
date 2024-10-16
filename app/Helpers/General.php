@@ -21,7 +21,7 @@ class General
         $filePath = storage_path('app/files/Government_Schools.xlsx');
         $spreadsheet = IOFactory::load($filePath);
         // $mySheetNames = ['CAT A', 'CAT B', 'CAT C', 'CAT D', 'APPENDIX_1', 'APPENDIX_6'];
-        $mySheetNames = ['CAT A', 'CAT B', 'CAT C', 'CAT D'];
+        $mySheetNames = ['CAT A', 'CAT B', 'CAT C'];
         foreach ($spreadsheet->getSheetNames() as $sheetIndex => $sheetName) {
             // Log::info("\nSHEET NAME === " . $sheetName);
             if (in_array($sheetName, $mySheetNames)) {
@@ -361,11 +361,6 @@ class General
                         $school_check->update([
                             'is_special_boarding_catchment_area' => 'YES'
                         ]);
-                    } else {
-                        $district_name = $rangeRow['C'];
-                        $location_name = $rangeRow['C'];
-                        $district = District::query()->where('name', 'LIKE', "%$district_name%")->first();
-                        array_push($total_left, $rangeRow['D']);
                     }
                 }
 
@@ -377,6 +372,181 @@ class General
             Log::info("\nMISSING CODES === " . json_encode($total_left));
         } catch (\Throwable $th) {
             Log::info("\nAPPENDIX 3 DATA ERROR: ", $th->getMessage() . ", LINE NUMBER: " . $th->getLine());
+        }
+    }
+
+    //APPENDIX 4 PROGRAMMES ASSIGNMENTS
+    public static function read_appendix_4_programmes()
+    {
+        $filePath = storage_path('app/files/Government_Schools.xlsx');
+        $spreadsheet = IOFactory::load($filePath);
+
+
+        $sheet = $spreadsheet->getSheet(9);
+        $highestRow = $sheet->getHighestRow();
+        $highestColumn = $sheet->getHighestColumn();
+
+        $missing_codes = [];
+
+        try {
+            for ($row = 2; $row <= 411; $row++) {
+
+                $range = $sheet->rangeToArray("A$row:$highestColumn$row", null, true, true, true);
+
+                foreach ($range as $rangeRow) {
+                    $code = trim($rangeRow['D']);
+                    $school_check = School::query()->where('code', $code)->first();
+
+                    if ($school_check != null) {
+                        $school_check->update([
+                            'is_cluster' => 'YES'
+                        ]);
+                    }
+                    else {
+                        array_push($missing_codes, $code);
+                        $district_name = $rangeRow['C'];
+                        $region_name = $rangeRow['B'];
+
+                        $district = District::query()->where('name', 'LIKE', "%$district_name%")->first();
+                        $region = Region::query()->where('name', 'LIKE', $region_name)->first();
+
+                        School::query()->create([
+                            'code' => "$code",
+                            'name' => $rangeRow['E'],
+                            'district_id' => $district->id,
+                            'region_id' => $region->id,
+                            'location_id' => NULL,
+                            'gender' => $rangeRow['F'],
+                            'category' => $rangeRow['G'],
+                            'is_cluster' => 'YES',
+                        ]);
+                    }
+                }
+            }
+            Log::info("\nMISSING CODES === " . json_encode($missing_codes));
+        } catch (\Throwable $th) {
+            Log::info("\nAPPENDIX 4 DATA ERROR: ", $th->getMessage() . ", LINE NUMBER: " . $th->getLine());
+        }
+    }
+
+    //APPENDIX 7 PROGRAMMES ASSIGNMENTS
+    public static function read_appendix_7_programmes()
+    {
+        $filePath = storage_path('app/files/Government_Schools.xlsx');
+        $spreadsheet = IOFactory::load($filePath);
+
+
+        $sheet = $spreadsheet->getSheet(12);
+        $highestRow = $sheet->getHighestRow();
+        $highestColumn = $sheet->getHighestColumn();
+
+        $missing_codes = [];
+
+        try {
+            for ($row = 5; $row <= 524; $row++) {
+
+                $range = $sheet->rangeToArray("A$row:$highestColumn$row", null, true, true, true);
+
+                foreach ($range as $rangeRow) {
+
+                    $code = trim($rangeRow['C']);
+
+                    if (strlen($code) == 5) {
+                        $code = "00$code";
+                    }
+                    if (strlen($code) == 6) {
+                        $code = "0$code";
+                    }
+
+                    $school_check = School::query()->where('code', $code)->first();
+
+                    if ($school_check != null) {
+                        $school_check->update([
+                            'track' => $rangeRow['F']
+                        ]);
+                    }
+                    else {
+                        $district_name = $rangeRow['C'];
+                        $region_name = $rangeRow['B'];
+
+                        $location_name = $rangeRow['E'];
+                        $location = Location::query()->where('name', 'LIKE', $location_name)->first();
+
+                        if ($location == null) {
+                           $location = Location::query()->create(['name' => $location_name]);
+                        }
+
+                        School::query()->create([
+                            'code' => "$code",
+                            'name' => $rangeRow['D'],
+                            'location_id' => $location->id,
+                            'track' => $rangeRow['F'],
+                        ]);
+                    }
+                }
+            }
+            Log::info("\nMISSING CODES === " . json_encode($missing_codes));
+        } catch (\Throwable $th) {
+            Log::info("\nAPPENDIX 4 DATA ERROR: ", $th->getMessage() . ", LINE NUMBER: " . $th->getLine());
+        }
+    }
+
+    //APPENDIX 7 PROGRAMMES ASSIGNMENTS
+    public static function read_appendix_8_programmes()
+    {
+        $filePath = storage_path('app/files/Government_Schools.xlsx');
+        $spreadsheet = IOFactory::load($filePath);
+
+
+        $sheet = $spreadsheet->getSheet(13);
+        $highestRow = $sheet->getHighestRow();
+        $highestColumn = $sheet->getHighestColumn();
+
+        $missing_codes = [];
+
+        try {
+            for ($row = 3; $row <= 415; $row++) {
+
+                $range = $sheet->rangeToArray("A$row:$highestColumn$row", null, true, true, true);
+
+                foreach ($range as $rangeRow) {
+
+                    $code = trim($rangeRow['C']);
+
+                    if (strlen($code) == 5) {
+                        $code = "00$code";
+                    }
+                    if (strlen($code) == 6) {
+                        $code = "0$code";
+                    }
+
+                    $school_check = School::query()->where('code', $code)->first();
+
+                    if ($school_check != null) {
+                        $school_check->update([
+                            'track' => $rangeRow['F']
+                        ]);
+                    }
+                    else {
+                        $location_name = $rangeRow['F'];
+                        $location = Location::query()->where('name', 'LIKE', $location_name)->first();
+
+                        if ($location == null) {
+                           $location = Location::query()->create(['name' => $location_name]);
+                        }
+
+                        School::query()->create([
+                            'code' => "$code",
+                            'name' => $rangeRow['D'],
+                            'location_id' => $location->id,
+                            'track' => $rangeRow['F'],
+                        ]);
+                    }
+                }
+            }
+            Log::info("\nMISSING CODES === " . json_encode($missing_codes));
+        } catch (\Throwable $th) {
+            Log::info("\nAPPENDIX 4 DATA ERROR: ", $th->getMessage() . ", LINE NUMBER: " . $th->getLine());
         }
     }
 }
