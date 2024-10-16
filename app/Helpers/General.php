@@ -177,7 +177,12 @@ class General
                             $programme_name = $split[0];
                             Programme::query()->updateOrCreate(
                                 ['code' => $programme_code],
-                                ['code' => $programme_code, 'name' => $programme_name]
+                                [
+                                    'code' => $programme_code,
+                                    'name' => $programme_name,
+                                    'type_of_programme' => 'Technical Institution',
+                                    'description' => 'These are courses offered by the technical institutions'
+                                ]
                             );
                         }
                     }
@@ -198,7 +203,11 @@ class General
                             $programme_name = $cellValue;
                             Programme::query()->updateOrCreate(
                                 ['name' => $programme_name],
-                                ['name' => $programme_name]
+                                [
+                                    'name' => $programme_name,
+                                    'type_of_programme' => 'STEM',
+                                    'description' => 'These are stem courses but some SHS schools also offer these courses'
+                                ]
                             );
                         }
                     }
@@ -606,7 +615,7 @@ class General
                                 ['name' => $value],
                                 [
                                     'name' => $value,
-                                    'programme_code' => '301'
+                                    'programme_code' => '301',
                                 ]
                             );
                         }

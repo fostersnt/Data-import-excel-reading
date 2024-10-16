@@ -10,7 +10,7 @@ class Programme extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['code', 'name'];
+    protected $fillable = ['code', 'name', 'type_of_programme', 'description'];
 
     public function school()
     {

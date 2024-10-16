@@ -30,14 +30,14 @@ class FileReadingCommand extends Command
     {
         $this->info("DATA EXTRACTION HAS BEGUN");
         // General::read_schools_and_locations();
-        // General::read_school_programmes();
+        General::read_school_programmes();
         // General::asign_appendix_1_programmes();
         // General::asign_appendix_6_programmes();
         // General::read_appendix_3_programmes();
         // General::read_appendix_4_programmes();
         // General::read_appendix_7_programmes();
         // General::read_appendix_8_programmes();
-        General::read_appendix_2_programmes();
+        // General::read_appendix_2_programmes();
         $this->info("DATA EXTRACTION HAS ENDED");
     }
 }

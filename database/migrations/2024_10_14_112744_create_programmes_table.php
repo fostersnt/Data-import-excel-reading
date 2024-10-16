@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('code')->nullable();
             $table->string('name');
+            $table->string('type_of_programme')->nullable();
+            $table->string('description')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });
