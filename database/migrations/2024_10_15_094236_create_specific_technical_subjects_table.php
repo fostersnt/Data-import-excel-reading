@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('specific_technical_subjects', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('programme_code')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

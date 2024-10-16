@@ -10,6 +10,7 @@ use App\Models\School;
 use App\Models\SchoolCategory;
 use App\Models\SchoolCode;
 use App\Models\SchoolProgramme;
+use App\Models\SpecificTechnicalSubject;
 use Illuminate\Support\Facades\Log;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Reader\IReadFilter;
@@ -401,8 +402,7 @@ class General
                         $school_check->update([
                             'is_cluster' => 'YES'
                         ]);
-                    }
-                    else {
+                    } else {
                         array_push($missing_codes, $code);
                         $district_name = $rangeRow['C'];
                         $region_name = $rangeRow['B'];
@@ -464,8 +464,7 @@ class General
                         $school_check->update([
                             'track' => $rangeRow['F']
                         ]);
-                    }
-                    else {
+                    } else {
                         $district_name = $rangeRow['C'];
                         $region_name = $rangeRow['B'];
 
@@ -473,7 +472,7 @@ class General
                         $location = Location::query()->where('name', 'LIKE', $location_name)->first();
 
                         if ($location == null) {
-                           $location = Location::query()->create(['name' => $location_name]);
+                            $location = Location::query()->create(['name' => $location_name]);
                         }
 
                         School::query()->create([
@@ -526,13 +525,12 @@ class General
                         $school_check->update([
                             'track' => $rangeRow['F']
                         ]);
-                    }
-                    else {
+                    } else {
                         $location_name = $rangeRow['F'];
                         $location = Location::query()->where('name', 'LIKE', $location_name)->first();
 
                         if ($location == null) {
-                           $location = Location::query()->create(['name' => $location_name]);
+                            $location = Location::query()->create(['name' => $location_name]);
                         }
 
                         School::query()->create([
@@ -547,6 +545,77 @@ class General
             Log::info("\nMISSING CODES === " . json_encode($missing_codes));
         } catch (\Throwable $th) {
             Log::info("\nAPPENDIX 4 DATA ERROR: ", $th->getMessage() . ", LINE NUMBER: " . $th->getLine());
+        }
+    }
+
+    //APPENDIX 2 PROGRAMMES ASSIGNMENTS
+    public static function read_appendix_2_programmes()
+    {
+        $filePath = storage_path('app/files/Government_Schools.xlsx');
+        $spreadsheet = IOFactory::load($filePath);
+
+
+        $sheet = $spreadsheet->getSheet(7);
+        $highestRow = $sheet->getHighestRow();
+        $highestColumn = $sheet->getHighestColumn();
+
+        try {
+            $programmes = [];
+
+            for ($row = 3; $row <= 178; $row++) {
+
+                $range = $sheet->rangeToArray("E$row:K$row", null, true, true, true);
+
+                foreach ($range as $rangeRow) {
+
+                    $programme1 = $rangeRow['E'];
+                    $programme2 = $rangeRow['F'];
+                    $programme3 = $rangeRow['G'];
+                    $programme4 = $rangeRow['H'];
+                    $programme5 = $rangeRow['I'];
+                    $programme6 = $rangeRow['J'];
+                    $programme7 = $rangeRow['K'];
+
+                    if ($programme1 != null) {
+                        array_push($programmes, $programme1);
+                    }
+                    if ($programme2 != null) {
+                        array_push($programmes, $programme2);
+                    }
+                    if ($programme3 != null) {
+                        array_push($programmes, $programme3);
+                    }
+                    if ($programme4 != null) {
+                        array_push($programmes, $programme4);
+                    }
+                    if ($programme5 != null) {
+                        array_push($programmes, $programme5);
+                    }
+                    if ($programme6 != null) {
+                        array_push($programmes, $programme6);
+                    }
+                    if ($programme7 != null) {
+                        array_push($programmes, $programme7);
+                    }
+
+                    $specific_subject = SpecificTechnicalSubject::query()->where('name',)->first();
+
+                    if ($specific_subject == null && count($programmes) > 0) {
+                        foreach ($programmes as $value) {
+                            SpecificTechnicalSubject::query()->updateOrCreate(
+                                ['name' => $value],
+                                [
+                                    'name' => $value,
+                                    'programme_code' => '301'
+                                ]
+                            );
+                        }
+                    }
+                    $programmes = [];
+                }
+            }
+        } catch (\Throwable $th) {
+            Log::info("\nAPPENDIX 2 DATA ERROR: ", $th->getMessage() . ", LINE NUMBER: " . $th->getLine());
         }
     }
 }
