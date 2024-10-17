@@ -49,15 +49,20 @@ class General
     {
         $filePath = storage_path('app/files/Government_Schools.xlsx');
         $spreadsheet = IOFactory::load($filePath);
-        // $mySheetNames = ['CAT A', 'CAT B', 'CAT C', 'CAT D', 'APPENDIX_1', 'APPENDIX_6'];
+
         $mySheetNames = ['CAT A', 'CAT B', 'CAT C'];
+
+        $category_id = NULL;
+
         foreach ($spreadsheet->getSheetNames() as $sheetIndex => $sheetName) {
-            // Log::info("\nSHEET NAME === " . $sheetName);
             if (in_array($sheetName, $mySheetNames)) {
-                $category = NULL;
                 if (str_contains(strtolower($sheetName), 'cat')) {
                     $split = explode(' ', $sheetName);
                     $category = $split[1];
+                    $category_check = Category::query()->where('name', $category)->first();
+                    if ($category_check) {
+                        $category_id = $category_check->id;
+                    }
                 }
 
                 // $sheet = $spreadsheet->getSheet($sheetIndex);
@@ -135,7 +140,7 @@ class General
                                     'district_id' => $district->id,
                                     'location_id' => $location->id,
                                     'region_id' => $region->id,
-                                    'category' => $category
+                                    'category_id' => $category_id
                                 ]
                             );
 
@@ -215,6 +220,32 @@ class General
                                     'name' => $programme_name,
                                     'type_of_programme' => 'Technical Institution',
                                     'description' => 'These are courses offered by the technical institutions'
+                                ]
+                            );
+                        }
+                    }
+                } catch (\Throwable $th) {
+                    Log::info("\PROGRAMME NAMES ERROR: ", $th->getMessage() . ", LINE NUMBER: " . $th->getLine());
+                }
+            }
+            if ($sheetName == 'APPENDIX_5') {
+                $sheet = $spreadsheet->getSheet($sheetIndex);
+
+                $highestRow = $sheet->getHighestRow();
+                $highestColumn = $sheet->getHighestColumn();
+
+                try {
+                    $range = $sheet->rangeToArray('F2:F9', null, true, true, true);
+                    foreach ($range as $column) {
+                        foreach ($column as $columnLetter => $cellValue) {
+                            Log::info("\nCOLUMN DATA === " . json_encode($cellValue));
+                            $programme_name = $cellValue;
+                            Programme::query()->updateOrCreate(
+                                ['name' => $programme_name],
+                                [
+                                    'name' => $programme_name,
+                                    'type_of_programme' => 'Special Education Need (SEN)',
+                                    'description' => 'These are subjects offered by schools that require special education needs'
                                 ]
                             );
                         }
@@ -532,7 +563,7 @@ class General
         }
     }
 
-    //APPENDIX 7 PROGRAMMES ASSIGNMENTS
+    //APPENDIX 8 PROGRAMMES ASSIGNMENTS
     public static function read_appendix_8_programmes()
     {
         $filePath = storage_path('app/files/Government_Schools.xlsx');
@@ -592,6 +623,77 @@ class General
 
     //APPENDIX 2 PROGRAMMES ASSIGNMENTS
     public static function read_appendix_2_programmes()
+    {
+        $filePath = storage_path('app/files/Government_Schools.xlsx');
+        $spreadsheet = IOFactory::load($filePath);
+
+
+        $sheet = $spreadsheet->getSheet(7);
+        $highestRow = $sheet->getHighestRow();
+        $highestColumn = $sheet->getHighestColumn();
+
+        try {
+            $programmes = [];
+
+            for ($row = 3; $row <= 178; $row++) {
+
+                $range = $sheet->rangeToArray("E$row:K$row", null, true, true, true);
+
+                foreach ($range as $rangeRow) {
+
+                    $programme1 = $rangeRow['E'];
+                    $programme2 = $rangeRow['F'];
+                    $programme3 = $rangeRow['G'];
+                    $programme4 = $rangeRow['H'];
+                    $programme5 = $rangeRow['I'];
+                    $programme6 = $rangeRow['J'];
+                    $programme7 = $rangeRow['K'];
+
+                    if ($programme1 != null) {
+                        array_push($programmes, $programme1);
+                    }
+                    if ($programme2 != null) {
+                        array_push($programmes, $programme2);
+                    }
+                    if ($programme3 != null) {
+                        array_push($programmes, $programme3);
+                    }
+                    if ($programme4 != null) {
+                        array_push($programmes, $programme4);
+                    }
+                    if ($programme5 != null) {
+                        array_push($programmes, $programme5);
+                    }
+                    if ($programme6 != null) {
+                        array_push($programmes, $programme6);
+                    }
+                    if ($programme7 != null) {
+                        array_push($programmes, $programme7);
+                    }
+
+                    $specific_subject = SpecificTechnicalSubject::query()->where('name',)->first();
+
+                    if ($specific_subject == null && count($programmes) > 0) {
+                        foreach ($programmes as $value) {
+                            SpecificTechnicalSubject::query()->updateOrCreate(
+                                ['name' => $value],
+                                [
+                                    'name' => $value,
+                                    'programme_code' => '301',
+                                ]
+                            );
+                        }
+                    }
+                    $programmes = [];
+                }
+            }
+        } catch (\Throwable $th) {
+            Log::info("\nAPPENDIX 2 DATA ERROR: ", $th->getMessage() . ", LINE NUMBER: " . $th->getLine());
+        }
+    }
+
+    //APPENDIX 2 PROGRAMMES ASSIGNMENTS
+    public static function read_appendix_5_programmes()
     {
         $filePath = storage_path('app/files/Government_Schools.xlsx');
         $spreadsheet = IOFactory::load($filePath);
