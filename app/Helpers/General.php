@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use App\Models\Category;
 use App\Models\District;
 use App\Models\Location;
 use App\Models\Programme;
@@ -17,9 +18,31 @@ use PhpOffice\PhpSpreadsheet\Reader\IReadFilter;
 
 class General
 {
-    public static function createCategories ()
+    public static function createCategories()
     {
+        $categories = ['A', 'B', 'C'];
+        $description = NULL;
+        foreach ($categories as $value) {
+            switch ($value) {
+                case 'A':
+                    $description = 'Highly selective schools';
+                    break;
+                case 'B':
+                    $description = 'Mostly selective schools';
+                    break;
+                case 'C':
+                    $description = 'Moderately selective schools';
+                    break;
+                default:
+                    $description = NULL;
+                    break;
+            }
 
+            Category::query()->updateOrCreate(
+                ['name' => $value],
+                ['name' => $value, 'description' => $description]
+            );
+        }
     }
 
     public static function read_schools_and_locations()
@@ -163,7 +186,7 @@ class General
                                     'name' => $programme_name,
                                     'type_of_programme' => 'SHS/SHTS',
                                     'description' => 'These are programmes offered by both SHS and SHTS schools'
-                                    ]
+                                ]
                             );
                             Log::info("\nPROGRAMME CODE: " . $programme_code . ", PROGRAMME NAME: " . $programme_name);
                         }
