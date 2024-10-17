@@ -20,7 +20,7 @@ class School extends Model
         'district_id',
         'location_id',
         'region_id',
-        'category',
+        'category_id',
         'is_special_boarding_catchment_area',
         'is_cluster',
         'track'

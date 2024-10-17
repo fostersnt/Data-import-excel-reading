@@ -17,6 +17,11 @@ use PhpOffice\PhpSpreadsheet\Reader\IReadFilter;
 
 class General
 {
+    public static function createCategories ()
+    {
+
+    }
+
     public static function read_schools_and_locations()
     {
         $filePath = storage_path('app/files/Government_Schools.xlsx');
@@ -153,7 +158,12 @@ class General
                             $programme_name = $split[0];
                             Programme::query()->updateOrCreate(
                                 ['code' => $programme_code],
-                                ['code' => trim($programme_code), 'name' => $programme_name]
+                                [
+                                    'code' => trim($programme_code),
+                                    'name' => $programme_name,
+                                    'type_of_programme' => 'SHS/SHTS',
+                                    'description' => 'These are programmes offered by both SHS and SHTS schools'
+                                    ]
                             );
                             Log::info("\nPROGRAMME CODE: " . $programme_code . ", PROGRAMME NAME: " . $programme_name);
                         }
