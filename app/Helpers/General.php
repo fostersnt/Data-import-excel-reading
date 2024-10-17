@@ -89,6 +89,10 @@ class General
                         $district_name = $sheet->getCell('C' . $row);
                         $location_name = $sheet->getCell('F' . $row);
 
+                        if ($sheetName == 'CAT C') {
+                            $num_of_programs = $sheet->getCell('O' . $row)->getValue();
+                        }
+
                         if (strlen($code) == 5) {
                             $code = "00$code";
                         }
@@ -718,19 +722,22 @@ class General
                     $region_name = $rangeRow['E'];
                     $programme_name = $rangeRow['F'];
 
-                    $location = $location_name != null ? Location::query()->updateOrCreate(['name' => $location_name], ['name' => $location_name]) : null;
-                    $district = $district_name != null ? District::query()->updateOrCreate(['name' => $district_name], ['name' => $district_name]) : null;
-                    $region = $region_name != null ? Region::query()->updateOrCreate(['name' => $region_name], ['name' => $region_name]) : null;
-                    $programme = $programme_name != null ? Programme::query()->updateOrCreate(['name' => $programme_name], ['name' => $programme_name]) : null;
+                    // Log::info("\nSCHOOL NAME: $school_name, LOCATION: $location_name, DISTRICT: $district_name, REGION: $region_name, PROGRAMME: $programme_name");
+
+                    $location = Location::query()->updateOrCreate(['name' => $location_name], ['name' => $location_name]);
+                    $district = District::query()->updateOrCreate(['name' => $district_name], ['name' => $district_name]);
+                    $region = Region::query()->updateOrCreate(['name' => $region_name], ['name' => $region_name]);
+                    $programme = Programme::query()->updateOrCreate(['name' => $programme_name], ['name' => $programme_name]);
+                    // Log::info("\nDISTRICT: " . json_encode($district) . "\nREGION: " . json_encode($region) . "\nLOCATION: " . json_encode($location) . "\nPROGRAMME: " . json_encode($programme));
 
                     if ($school_name != null) {
                         $school = School::query()->updateOrCreate(
-                            ['name' => $school_name], ['name'],
+                            ['name' => $school_name],
                             [
                                 'name' => $school_name,
-                                'location_id' => $location->id ?? null,
-                                'district_id' => $district->id ?? null,
-                                'region_id' => $region->id ?? null,
+                                'location_id' => $location->id,
+                                'district_id' => $district->id,
+                                'region_id' => $region->id,
                             ]
                         );
                         $school->programme()->attach($programme->id);
