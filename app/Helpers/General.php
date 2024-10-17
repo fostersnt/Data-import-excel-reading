@@ -699,63 +699,42 @@ class General
         $spreadsheet = IOFactory::load($filePath);
 
 
-        $sheet = $spreadsheet->getSheet(7);
+        $sheet = $spreadsheet->getSheet(10);
         $highestRow = $sheet->getHighestRow();
         $highestColumn = $sheet->getHighestColumn();
 
         try {
             $programmes = [];
 
-            for ($row = 3; $row <= 178; $row++) {
+            for ($row = 2; $row <= 10; $row++) {
 
-                $range = $sheet->rangeToArray("E$row:K$row", null, true, true, true);
+                $range = $sheet->rangeToArray("B$row:F$row", null, true, true, true);
 
                 foreach ($range as $rangeRow) {
 
-                    $programme1 = $rangeRow['E'];
-                    $programme2 = $rangeRow['F'];
-                    $programme3 = $rangeRow['G'];
-                    $programme4 = $rangeRow['H'];
-                    $programme5 = $rangeRow['I'];
-                    $programme6 = $rangeRow['J'];
-                    $programme7 = $rangeRow['K'];
+                    $school_name = $rangeRow['B'];
+                    $location_name = $rangeRow['C'];
+                    $district_name = $rangeRow['D'];
+                    $region_name = $rangeRow['E'];
+                    $programme_name = $rangeRow['F'];
 
-                    if ($programme1 != null) {
-                        array_push($programmes, $programme1);
-                    }
-                    if ($programme2 != null) {
-                        array_push($programmes, $programme2);
-                    }
-                    if ($programme3 != null) {
-                        array_push($programmes, $programme3);
-                    }
-                    if ($programme4 != null) {
-                        array_push($programmes, $programme4);
-                    }
-                    if ($programme5 != null) {
-                        array_push($programmes, $programme5);
-                    }
-                    if ($programme6 != null) {
-                        array_push($programmes, $programme6);
-                    }
-                    if ($programme7 != null) {
-                        array_push($programmes, $programme7);
-                    }
+                    $location = $location_name != null ? Location::query()->updateOrCreate(['name' => $location_name], ['name' => $location_name]) : null;
+                    $district = $district_name != null ? District::query()->updateOrCreate(['name' => $district_name], ['name' => $district_name]) : null;
+                    $region = $region_name != null ? Region::query()->updateOrCreate(['name' => $region_name], ['name' => $region_name]) : null;
+                    $programme = $programme_name != null ? Programme::query()->updateOrCreate(['name' => $programme_name], ['name' => $programme_name]) : null;
 
-                    $specific_subject = SpecificTechnicalSubject::query()->where('name',)->first();
-
-                    if ($specific_subject == null && count($programmes) > 0) {
-                        foreach ($programmes as $value) {
-                            SpecificTechnicalSubject::query()->updateOrCreate(
-                                ['name' => $value],
-                                [
-                                    'name' => $value,
-                                    'programme_code' => '301',
-                                ]
-                            );
-                        }
+                    if ($school_name != null) {
+                        $school = School::query()->updateOrCreate(
+                            ['name' => $school_name], ['name'],
+                            [
+                                'name' => $school_name,
+                                'location_id' => $location->id ?? null,
+                                'district_id' => $district->id ?? null,
+                                'region_id' => $region->id ?? null,
+                            ]
+                        );
+                        $school->programme()->attach($programme->id);
                     }
-                    $programmes = [];
                 }
             }
         } catch (\Throwable $th) {
