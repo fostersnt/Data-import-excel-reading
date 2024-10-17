@@ -130,7 +130,7 @@ class General
                             array_push($relationship_array, 8);
                         }
 
-                        if ($code != null && $code != '') {
+                        if ($code != null && $code != '' && $school_name != null && $school_name != '') {
                             //Create a school
                             $school = School::updateOrCreate(
                                 ['code' => $code],
