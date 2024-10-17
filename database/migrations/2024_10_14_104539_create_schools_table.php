@@ -22,7 +22,7 @@ return new class extends Migration
             $table->integer('district_id')->nullable();
             $table->integer('location_id')->nullable();
             $table->integer('region_id')->nullable();
-            $table->char('category_id')->nullable();
+            $table->integer('category_id')->nullable();
             $table->string('is_special_boarding_catchment_area')->default('NO');
             $table->string('is_cluster')->default('NO');
             $table->string('track')->nullable();
