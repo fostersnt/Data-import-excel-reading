@@ -728,10 +728,11 @@ class General
                     $district = District::query()->updateOrCreate(['name' => $district_name], ['name' => $district_name]);
                     $region = Region::query()->updateOrCreate(['name' => $region_name], ['name' => $region_name]);
                     $programme = Programme::query()->updateOrCreate(['name' => $programme_name], ['name' => $programme_name]);
+
                     // Log::info("\nDISTRICT: " . json_encode($district) . "\nREGION: " . json_encode($region) . "\nLOCATION: " . json_encode($location) . "\nPROGRAMME: " . json_encode($programme));
 
                     if ($school_name != null && $school_name != '') {
-                        $school = School::query()->updateOrCreate(
+                        $school = School::updateOrCreate(
                             ['name' => $school_name],
                             [
                                 'name' => $school_name,
