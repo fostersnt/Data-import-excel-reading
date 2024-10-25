@@ -26,6 +26,9 @@ return new class extends Migration
             $table->string('is_special_boarding_catchment_area')->default('NO');
             $table->string('is_cluster')->default('NO');
             $table->string('track')->nullable();
+            $table->string('specialization')->nullable();
+            $table->string('curriculum')->nullable();
+            $table->string('is_private')->default('NO');
             $table->softDeletes();
             $table->timestamps();
         });

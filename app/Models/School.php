@@ -23,11 +23,19 @@ class School extends Model
         'category_id',
         'is_special_boarding_catchment_area',
         'is_cluster',
-        'track'
+        'track',
+        'curriculum',
+        'specialization',
+        'is_private'
     ];
 
     public function programme()
     {
         return $this->belongsToMany(Programme::class, 'school_programmes')->withTimestamps();
+    }
+
+    public function curriculum()
+    {
+        return $this->belongsToMany(Curriculum::class, 'privateschool_curricula')->withTimestamps();
     }
 }

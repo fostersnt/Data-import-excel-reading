@@ -3,6 +3,7 @@
 namespace App\Helpers;
 
 use App\Models\Category;
+use App\Models\Curriculum;
 use App\Models\District;
 use App\Models\Location;
 use App\Models\Programme;
@@ -25,13 +26,13 @@ class General
         foreach ($categories as $value) {
             switch ($value) {
                 case 'A':
-                    $description = 'Highly selective schools';
+                    $description = 'Highly selective';
                     break;
                 case 'B':
-                    $description = 'Mostly selective schools';
+                    $description = 'Mostly selective';
                     break;
                 case 'C':
-                    $description = 'Moderately selective schools';
+                    $description = 'Moderately selective';
                     break;
                 default:
                     $description = NULL;
@@ -627,76 +628,59 @@ class General
 
     //APPENDIX 2 PROGRAMMES ASSIGNMENTS
     public static function read_appendix_2_programmes()
-    {
-        $filePath = storage_path('app/files/Government_Schools.xlsx');
-        $spreadsheet = IOFactory::load($filePath);
+{
+    $filePath = storage_path('app/files/Government_Schools.xlsx');
 
+    try {
+        $spreadsheet = IOFactory::load($filePath);
+        if ($spreadsheet->getSheetCount() < 8) {
+            Log::error('Sheet 7 does not exist in the spreadsheet.');
+            return;
+        }
 
         $sheet = $spreadsheet->getSheet(7);
         $highestRow = $sheet->getHighestRow();
-        $highestColumn = $sheet->getHighestColumn();
 
-        try {
-            $programmes = [];
+        $subjects = [];
 
-            for ($row = 3; $row <= 178; $row++) {
+        for ($row = 3; $row <= $highestRow; $row++) {
+            $range = $sheet->rangeToArray("E$row:K$row", null, true, true, true);
+            foreach ($range as $rangeRow) {
+                $programmes = array_filter([
+                    trim($rangeRow['E'], " '"), trim($rangeRow['F'], " '"), trim($rangeRow['G'], " '"),
+                    trim($rangeRow['H'], " '"), trim($rangeRow['I'], " '"), trim($rangeRow['J'], " '"), trim($rangeRow['K'], " ' `")
+                ], fn($item) => strlen($item) > 0 );
 
-                $range = $sheet->rangeToArray("E$row:K$row", null, true, true, true);
-
-                foreach ($range as $rangeRow) {
-
-                    $programme1 = $rangeRow['E'];
-                    $programme2 = $rangeRow['F'];
-                    $programme3 = $rangeRow['G'];
-                    $programme4 = $rangeRow['H'];
-                    $programme5 = $rangeRow['I'];
-                    $programme6 = $rangeRow['J'];
-                    $programme7 = $rangeRow['K'];
-
-                    if ($programme1 != null) {
-                        array_push($programmes, $programme1);
+                if (count($programmes) > 0) {
+                    foreach ($programmes as $value) {
+                        $subjects[] = $value;
                     }
-                    if ($programme2 != null) {
-                        array_push($programmes, $programme2);
-                    }
-                    if ($programme3 != null) {
-                        array_push($programmes, $programme3);
-                    }
-                    if ($programme4 != null) {
-                        array_push($programmes, $programme4);
-                    }
-                    if ($programme5 != null) {
-                        array_push($programmes, $programme5);
-                    }
-                    if ($programme6 != null) {
-                        array_push($programmes, $programme6);
-                    }
-                    if ($programme7 != null) {
-                        array_push($programmes, $programme7);
-                    }
-
-                    $specific_subject = SpecificTechnicalSubject::query()->where('name',)->first();
-
-                    if ($specific_subject == null && count($programmes) > 0) {
-                        foreach ($programmes as $value) {
-                            SpecificTechnicalSubject::query()->updateOrCreate(
-                                ['name' => $value],
-                                [
-                                    'name' => $value,
-                                    'programme_code' => '301',
-                                ]
-                            );
-                        }
-                    }
-                    $programmes = [];
                 }
             }
-        } catch (\Throwable $th) {
-            Log::info("\nAPPENDIX 2 DATA ERROR: ", $th->getMessage() . ", LINE NUMBER: " . $th->getLine());
         }
-    }
 
-    //APPENDIX 2 PROGRAMMES ASSIGNMENTS
+        if (!empty($subjects)) {
+            for ($item=0; $item < $subjects; $item++) {
+                SpecificTechnicalSubject::updateOrCreate(
+                    ['name' => $subjects[$item]],
+                    [
+                        'name' => $subjects[$item],
+                        'programme_code' => '301'
+                    ],
+                );
+            }
+        }
+
+    } catch (\Throwable $th) {
+        Log::info('APPENDIX 2 DATA ERROR', [
+            'message' => $th->getMessage(),
+            'line' => $th->getLine(),
+        ]);
+    }
+}
+
+
+    //APPENDIX 5 PROGRAMMES ASSIGNMENTS
     public static function read_appendix_5_programmes()
     {
         $filePath = storage_path('app/files/Government_Schools.xlsx');
@@ -747,6 +731,79 @@ class General
             }
         } catch (\Throwable $th) {
             Log::info("\nAPPENDIX 2 DATA ERROR: ", $th->getMessage() . ", LINE NUMBER: " . $th->getLine());
+        }
+    }
+
+    //PRIVATE SCHOOLS
+    public static function read_private_schools()
+    {
+        $filePath = storage_path('app/files/PRIVATE_SCHOOLS.xlsx');
+        $spreadsheet = IOFactory::load($filePath);
+
+
+        $sheet = $spreadsheet->getSheet(0);
+        $highestRow = $sheet->getHighestRow();
+        $highestColumn = $sheet->getHighestColumn();
+
+        try {
+            $programmes = [];
+
+            for ($row = 2; $row <= $highestRow; $row++) {
+
+                $range = $sheet->rangeToArray("A$row:G$row", null, true, true, true);
+
+                foreach ($range as $rangeRow) {
+
+                    $school_name = $rangeRow['A'];
+                    $specialization = $rangeRow['B'];
+                    $region_name = $rangeRow['C'];
+                    $status = $rangeRow['D'];
+                    $gender = $rangeRow['E'];
+                    $curriculum = $rangeRow['F'];
+                    $category_description = $rangeRow['G'];
+
+                    // Log::info("\nSCHOOL NAME: $school_name, LOCATION: $location_name, DISTRICT: $district_name, REGION: $region_name, PROGRAMME: $programme_name");
+                    $formattedCurriculum = str_contains(strtolower($curriculum), 'curriculum') ? str_replace('curriculum', '', $curriculum) : $curriculum;
+                    $final_curriculum = trim($formattedCurriculum);
+
+                    $region = Region::query()->updateOrCreate(['name' => $region_name], ['name' => $region_name]);
+                    $category = Category::query()->where('description', 'LIKE', "%$category_description%")->first();
+                    // Log::info("\nDISTRICT: " . json_encode($district) . "\nREGION: " . json_encode($region) . "\nLOCATION: " . json_encode($location) . "\nPROGRAMME: " . json_encode($programme));
+
+                    if ($curriculum != null && $curriculum != '') {
+                        Curriculum::query()->updateOrCreate(['name' => $final_curriculum], ['name' => $final_curriculum]);
+                    }
+
+                    if ($school_name != null && $school_name != '') {
+
+                        $data = [
+                            'name' => $school_name,
+                            'status' => $status,
+                            'gender' => $gender,
+                            'region_id' => $region->id ?? NULL,
+                            'category_id' => $category->id ?? NULL,
+                            'specialization' => $specialization ?? NULL,
+                            'curriculum' => $final_curriculum ?? NULL,
+                            'is_private' => 'YES'
+                        ];
+
+                        Log::info("\nSCHOOL DATA === " . json_encode($data));
+                        // break;
+
+                        // $school_check = School::query()->where('name', $school_name)->where('region_id', $region->id)->first();
+
+                        $school = School::updateOrCreate(
+                            ['region_id' => $region->id],
+                            $data
+                        );
+
+                        // $school
+                    }
+                }
+                // break;
+            }
+        } catch (\Throwable $th) {
+            Log::info("\nPRIVATE SCHOOL DATA ERROR: ", $th->getMessage() . ", LINE NUMBER: " . $th->getLine());
         }
     }
 }
