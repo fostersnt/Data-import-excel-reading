@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\Curriculum;
 use App\Models\District;
 use App\Models\Location;
+use App\Models\PrivateschoolCurriculum;
 use App\Models\Programme;
 use App\Models\Region;
 use App\Models\School;
@@ -26,13 +27,13 @@ class General
         foreach ($categories as $value) {
             switch ($value) {
                 case 'A':
-                    $description = 'Highly selective';
+                    $description = 'Highly';
                     break;
                 case 'B':
-                    $description = 'Mostly selective';
+                    $description = 'Mostly';
                     break;
                 case 'C':
-                    $description = 'Moderately selective';
+                    $description = 'Moderately';
                     break;
                 default:
                     $description = NULL;
@@ -736,73 +737,62 @@ class General
 
     //PRIVATE SCHOOLS
     public static function read_private_schools()
-    {
-        $filePath = storage_path('app/files/PRIVATE_SCHOOLS.xlsx');
-        $spreadsheet = IOFactory::load($filePath);
+{
+    $filePath = storage_path('app/files/PRIVATE_SCHOOLS.xlsx');
+    $spreadsheet = IOFactory::load($filePath);
+    $sheet = $spreadsheet->getSheet(0);
+    $highestRow = $sheet->getHighestRow();
 
+    try {
+        for ($row = 2; $row <= $highestRow; $row++) {
+            $range = $sheet->rangeToArray("A$row:G$row", null, true, true, true);
 
-        $sheet = $spreadsheet->getSheet(0);
-        $highestRow = $sheet->getHighestRow();
-        $highestColumn = $sheet->getHighestColumn();
+            foreach ($range as $rangeRow) {
+                $school_name = $rangeRow['A'];
+                $specialization = $rangeRow['B'];
+                $region_name = $rangeRow['C'];
+                $status = $rangeRow['D'];
+                $gender = $rangeRow['E'];
+                $curriculum = $rangeRow['F'];
+                $category_description = $rangeRow['G'];
 
-        try {
-
-            for ($row = 2; $row <= $highestRow; $row++) {
-
-                $range = $sheet->rangeToArray("A$row:G$row", null, true, true, true);
-
-                foreach ($range as $rangeRow) {
-
-                    $school_name = $rangeRow['A'];
-                    $specialization = $rangeRow['B'];
-                    $region_name = $rangeRow['C'];
-                    $status = $rangeRow['D'];
-                    $gender = $rangeRow['E'];
-                    $curriculum = $rangeRow['F'];
-                    $category_description = $rangeRow['G'];
-
-                    // Log::info("\nSCHOOL NAME: $school_name, LOCATION: $location_name, DISTRICT: $district_name, REGION: $region_name, PROGRAMME: $programme_name");
-                    $formattedCurriculum = str_contains(strtolower($curriculum), 'curriculum') ? str_replace('curriculum', '', $curriculum) : $curriculum;
-                    $final_curriculum = trim($formattedCurriculum);
-
-                    $region = Region::query()->updateOrCreate(['name' => $region_name], ['name' => $region_name]);
-                    $category = Category::query()->where('description', 'LIKE', "%$category_description%")->first();
-                    // Log::info("\nDISTRICT: " . json_encode($district) . "\nREGION: " . json_encode($region) . "\nLOCATION: " . json_encode($location) . "\nPROGRAMME: " . json_encode($programme));
-
-                    if ($school_name != null && $school_name != '') {
-
-                        $data = [
-                            'name' => $school_name,
-                            'status' => $status,
-                            'gender' => $gender,
-                            'region_id' => $region->id ?? NULL,
-                            'category_id' => $category->id ?? NULL,
-                            'specialization' => $specialization ?? NULL,
-                            'curriculum' => $final_curriculum ?? NULL,
-                            'is_private' => 'YES'
-                        ];
-
-                        Log::info("\nSCHOOL DATA === " . json_encode($data));
-                        // break;
-
-                        // $school_check = School::query()->where('name', $school_name)->where('region_id', $region->id)->first();
-
-                        $school = School::updateOrCreate(
-                            ['region_id' => $region->id],
-                            $data
-                        );
-
-                        if ($curriculum != null && $curriculum != '') {
-                            $cur = Curriculum::query()->updateOrCreate(['name' => $final_curriculum], ['name' => $final_curriculum]);
-                            $school->curriculum()->attach($cur->id);
-                        }
-                    }
-                    break;
+                if ($category_description) {
+                    $category_description = explode(' ', $category_description)[0];
                 }
-                break;
+
+                $formattedCurriculum = str_contains(strtolower($curriculum), 'curriculum') ? str_replace('curriculum', '', $curriculum) : $curriculum;
+                $final_curriculum = trim($formattedCurriculum);
+
+                $region = Region::query()->updateOrCreate(['name' => $region_name], ['name' => $region_name]);
+                $category = Category::query()->where('description', 'LIKE', "%$category_description%")->first();
+
+                if ($school_name) {
+                    $data = [
+                        'name' => $school_name,
+                        'status' => $status,
+                        'gender' => $gender,
+                        'region_id' => $region->id ?? null,
+                        'category_id' => $category->id ?? null,
+                        'specialization' => $specialization ?? null,
+                        'curriculum' => $final_curriculum ?? null,
+                        'is_private' => 'YES'
+                    ];
+
+                    $school = School::updateOrCreate(
+                        ['name' => $school_name, 'region_id' => $region->id],
+                        $data
+                    );
+
+                    if ($final_curriculum) {
+                        $cur = Curriculum::query()->updateOrCreate(['name' => $final_curriculum], ['name' => $final_curriculum]);
+                        $school->curriculum()->syncWithoutDetaching([$cur->id]);
+                    }
+                }
             }
-        } catch (\Throwable $th) {
-            Log::info("\nPRIVATE SCHOOL DATA ERROR: ", $th->getMessage() . ", LINE NUMBER: " . $th->getLine());
         }
+    } catch (\Throwable $th) {
+        Log::error("PRIVATE SCHOOL DATA ERROR: " . $th->getMessage() . ", LINE NUMBER: " . $th->getLine());
     }
+}
+
 }
