@@ -36,6 +36,6 @@ class School extends Model
 
     public function curriculum()
     {
-        return $this->belongsToMany(Curriculum::class, 'privateschool_curricula')->withTimestamps();
+        return $this->belongsToMany(Curriculum::class, 'privateschool_curricula', 'school_id', 'curricula_id')->withTimestamps();
     }
 }

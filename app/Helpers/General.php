@@ -746,7 +746,6 @@ class General
         $highestColumn = $sheet->getHighestColumn();
 
         try {
-            $programmes = [];
 
             for ($row = 2; $row <= $highestRow; $row++) {
 
@@ -769,10 +768,6 @@ class General
                     $region = Region::query()->updateOrCreate(['name' => $region_name], ['name' => $region_name]);
                     $category = Category::query()->where('description', 'LIKE', "%$category_description%")->first();
                     // Log::info("\nDISTRICT: " . json_encode($district) . "\nREGION: " . json_encode($region) . "\nLOCATION: " . json_encode($location) . "\nPROGRAMME: " . json_encode($programme));
-
-                    if ($curriculum != null && $curriculum != '') {
-                        Curriculum::query()->updateOrCreate(['name' => $final_curriculum], ['name' => $final_curriculum]);
-                    }
 
                     if ($school_name != null && $school_name != '') {
 
@@ -797,10 +792,14 @@ class General
                             $data
                         );
 
-                        // $school
+                        if ($curriculum != null && $curriculum != '') {
+                            $cur = Curriculum::query()->updateOrCreate(['name' => $final_curriculum], ['name' => $final_curriculum]);
+                            $school->curriculum()->attach($cur->id);
+                        }
                     }
+                    break;
                 }
-                // break;
+                break;
             }
         } catch (\Throwable $th) {
             Log::info("\nPRIVATE SCHOOL DATA ERROR: ", $th->getMessage() . ", LINE NUMBER: " . $th->getLine());
