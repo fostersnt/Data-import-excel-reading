@@ -24,7 +24,6 @@ class School extends Model
         'is_special_boarding_catchment_area',
         'is_cluster',
         'track',
-        'curriculum',
         'specialization',
         'is_private'
     ];
