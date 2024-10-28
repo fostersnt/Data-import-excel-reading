@@ -1,8 +1,10 @@
 # Use an official PHP runtime as the base image with Apache
-FROM php:8.1-apache
+FROM ubuntu
+# FROM php:8.1-apache
 
 # Install system dependencies and PHP extensions required by Laravel
 RUN apt-get update && apt-get install -y \
+    libzip-dev \
     libpng-dev \
     libjpeg-dev \
     libfreetype6-dev \
@@ -12,8 +14,8 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install gd pdo pdo_mysql zip
 
 # Install GD extensions
-RUN docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/
-RUN docker-php-ext-install gd
+# RUN docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/
+# RUN docker-php-ext-install gd
 
 # Install Composer (PHP dependency manager)
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
