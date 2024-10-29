@@ -1,0 +1,44 @@
+# Use PHP 8.1 with FPM
+FROM php:8.1-fpm
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    libpng-dev \
+    libjpeg62-turbo-dev \
+    libfreetype6-dev \
+    libonig-dev \
+    libzip-dev \
+    zip \
+    curl \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install pdo pdo_mysql mbstring zip exif pcntl gd
+
+# Copy the entrypoint script to the container
+COPY Docker/Entrypoint.sh /usr/local/bin/Entrypoint.sh
+
+# Ensure the entrypoint script is executable
+RUN chmod +x /usr/local/bin/Entrypoint.sh
+
+
+ENV MY_PORT=8000
+# Set working directory
+WORKDIR /var/www/html
+
+# Copy existing application directory
+COPY ../ /var/www/html
+
+# USER www-data
+
+# Set permissions
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+ENTRYPOINT [ "/usr/local/bin/Entrypoint.sh" ]
+
+# Install Composer dependencies
+# RUN composer install --no-interaction --optimize-autoloader --prefer-dist
+# Use the correct entrypoint path
+
+# Expose port (PHP doesn't need this explicitly, but good for documentation)
+EXPOSE 9000

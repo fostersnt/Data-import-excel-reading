@@ -1,41 +1,50 @@
-    # sudo a2ensite 000-default.conf
+# Version specification is obsolete
+# version: '3.8'
+
 services:
-    app:
-        build:
-            context: .
-            dockerfile: Dockerfile
-        volumes:
-            - .:/usr/local/apache2/htdocs
-        networks:
-            - app-network
+  app:
+    build:
+      context: .
+      dockerfile: Docker/Dockerfile
+    container_name: laravel_app
+    volumes:
+      - .:/var/www/html
+    networks:
+      - laravel-network
+    depends_on:
+      - db
 
-    webserver:
-        image: httpd:latest
-        volumes:
-            - ./httpd.conf:/usr/local/apache2/conf/httpd.conf
-            - .:/usr/local/apache2/htdocs
-        ports:
-            - "8000:80"
-        networks:
-            - app-network
-        depends_on:
-            - app
+  webserver:
+    image: httpd:latest
+    container_name: apache_server
+    volumes:
+      - .:/var/www/html
+      - ./docker/httpd.conf:/usr/local/apache2/conf/httpd.conf
+    ports:
+      - "8000:80"
+    depends_on:
+      - app
+    networks:
+      - laravel-network
 
-    mysql:
-        image: mysql:8
-        environment:
-            MYSQL_DATABASE: ${DB_DATABASE}
-            MYSQL_USER: ${DB_USERNAME}
-            MYSQL_PASSWORD: ${DB_PASSWORD}
-            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-        volumes:
-            - mysql_data:/var/lib/mysql
-        networks:
-            - app-network
+  db:
+    image: mysql:8.0
+    container_name: mysql_db
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - "3307:3306"
+    networks:
+      - laravel-network
 
 networks:
-    app-network:
-        driver: bridge
+  laravel-network:
+    driver: bridge
 
-volumes:  # Add this section to define your volumes
-    mysql_data:
+volumes:
+  db_data:
