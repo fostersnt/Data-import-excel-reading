@@ -12,14 +12,13 @@ RUN apt-get update && apt-get install -y \
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-WORKDIR /var/www
+WORKDIR /usr/local/apache2/htdocs
 
-COPY . /var/www
+COPY . /usr/local/apache2/htdocs
 
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
-    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+RUN chown -R www-data:www-data /usr/local/apache2/htdocs/storage && chmod -R 777 /usr/local/apache2/htdocs/storage
 
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+# RUN composer install --no-dev --optimize-autoloader --no-interaction
 
 EXPOSE 80
 

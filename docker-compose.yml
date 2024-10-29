@@ -1,10 +1,11 @@
+    # sudo a2ensite 000-default.conf
 services:
     app:
         build:
             context: .
             dockerfile: Dockerfile
         volumes:
-            - .:/var/www
+            - .:/usr/local/apache2/htdocs
         networks:
             - app-network
 
@@ -14,7 +15,7 @@ services:
             - ./httpd.conf:/usr/local/apache2/conf/httpd.conf
             - .:/usr/local/apache2/htdocs
         ports:
-            - "80:80"
+            - "8000:80"
         networks:
             - app-network
         depends_on:
@@ -35,3 +36,6 @@ services:
 networks:
     app-network:
         driver: bridge
+
+volumes:  # Add this section to define your volumes
+    mysql_data:
