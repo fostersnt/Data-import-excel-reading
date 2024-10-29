@@ -2,7 +2,7 @@ services:
     app:
         build:
             context: .
-            dockerfile: Dockfile
+            dockerfile: Dockerfile
         volumes:
             - .:/var/www
         networks:
@@ -31,3 +31,7 @@ services:
             - mysql_data:/var/lib/mysql
         networks:
             - app-network
+
+networks:
+    app-network:
+        driver: bridge
