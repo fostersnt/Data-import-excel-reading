@@ -7,3 +7,16 @@ services:
             - .:/var/www
         networks:
             - application-network
+
+    webserver:
+        image: httpd:latest
+        volumes:
+            - ./httpd.conf:/usr/local/apache2/conf/httpd.conf
+            - .:/usr/local/apache2/htdocs
+        ports:
+            - "80:80"
+        networks:
+            - app-network
+        depends_on:
+            - app
+
