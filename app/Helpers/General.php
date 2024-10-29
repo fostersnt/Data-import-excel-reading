@@ -772,13 +772,15 @@ class General
                     $formattedCurriculum = str_contains(strtolower($curriculum), 'curriculum') ? str_replace('curriculum', '', $curriculum) : $curriculum;
                     $final_curriculum = trim($formattedCurriculum);
 
+                    $final_status = str_replace(' ', '', $status);
+
                     $region = Region::query()->updateOrCreate(['name' => $region_name], ['name' => $region_name]);
                     $category = Category::query()->where('description', 'LIKE', "%$category_description%")->first();
 
                     if ($school_name) {
                         $data = [
                             'name' => $school_name,
-                            'status' => $status,
+                            'status' => $final_status,
                             'gender' => $gender,
                             'region_id' => $region->id ?? null,
                             'category_id' => $category->id ?? null,
