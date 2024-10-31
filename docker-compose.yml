@@ -14,18 +14,18 @@ services:
     depends_on:
       - db
 
-  webserver:
-    image: httpd:latest
-    container_name: apache_server
-    volumes:
-      - .:/var/www/html
-      - ./docker/httpd.conf:/usr/local/apache2/conf/httpd.conf
-    ports:
-      - "8000:80"
-    depends_on:
-      - app
-    networks:
-      - laravel-network
+#   webserver:
+#     image: httpd:latest
+#     container_name: apache_server
+#     volumes:
+#       - .:/var/www/html
+#       - ./docker/httpd.conf:/usr/local/apache2/conf/httpd.conf
+#     ports:
+#       - "8000:80"
+#     depends_on:
+#       - app
+#     networks:
+#       - laravel-network
 
   db:
     image: mysql:8.0
