@@ -25,7 +25,7 @@ RUN apt-get update && apt-get install -y \
     php8.1-dom \
     apache2 \
     libapache2-mod-php8.1 \
-    mysql
+    mysql-server
 
 # On Apache: Enable PHP 8.1 FPM
 RUN a2enconf php8.1-fpm
@@ -42,9 +42,10 @@ RUN a2enmod rewrite && \
 RUN curl -sS https://getcomposer.org/download/2.2.0/composer.phar -o /usr/local/bin/composer && \
     chmod +x /usr/local/bin/composer
 
+RUN mkdir -p /var/www/html/dataimport
 
 # Set the working directory
-WORKDIR /var/www/html
+WORKDIR /var/www/html/dataimport
 
 # Install Laravel
 # RUN composer create-project --prefer-dist laravel/laravel laravel-app
@@ -52,9 +53,12 @@ WORKDIR /var/www/html
 # Move the Laravel app files to the Apache root directory
 COPY ../ .
 
+COPY ../Apache2/000-default.conf /etc/apache2/sites-available/
+COPY ../Apache2/apache2.conf /etc/apache2/
+
 # COPY ./Entrypoint.sh
 
-ENTRYPOINT [ "Docker/Entrypoint.sh" ]
+ENTRYPOINT [ "Entrypoint.sh" ]
 # RUN composer install --no-interaction --optimize-autoloader --prefer-dist
 
 # USER www-data
