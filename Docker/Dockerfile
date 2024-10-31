@@ -24,7 +24,8 @@ RUN apt-get update && apt-get install -y \
     php8.1-gd \
     php8.1-dom \
     apache2 \
-    libapache2-mod-php8.1
+    libapache2-mod-php8.1 \
+    mysql
 
 # On Apache: Enable PHP 8.1 FPM
 RUN a2enconf php8.1-fpm
