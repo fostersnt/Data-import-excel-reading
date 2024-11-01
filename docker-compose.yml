@@ -2,49 +2,53 @@
 # version: '3.8'
 
 services:
+
   app:
     build:
-      context: .
-      dockerfile: Docker/Dockerfile
+        context: .
+        dockerfile: Docker/Dockerfile
     container_name: laravel_app
     volumes:
-      - .:/var/www/html/dataimport
+        - .:/var/www/dataimport
+    ports:
+        - "8000:80"
     networks:
-      - laravel-network
+        - laravel-network
     depends_on:
-      - db
+        - db
 
-#   webserver:
-#     image: httpd:latest
-#     container_name: apache_server
-#     volumes:
-#       - .:/var/www/html
-#       - ./docker/httpd.conf:/usr/local/apache2/conf/httpd.conf
-#     ports:
-#       - "8000:80"
-#     depends_on:
-#       - app
-#     networks:
-#       - laravel-network
+# web server service
+  webserver:
+    image: ubuntu/apache2
+    container_name: apache_server
+    volumes:
+        - ./Apache2/dataimport.conf:/etc/apache2/dataimport.conf
+        - ./Apache2/apache2.conf:/etc/apache2/apache2.conf
+    # ports:
+    #   - "8000:80"
+    depends_on:
+        - app
+    networks:
+        - laravel-network
 
   db:
     image: mysql:8.0
     container_name: mysql_db
     environment:
-      MYSQL_DATABASE: ${DB_DATABASE}
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      MYSQL_USER: ${DB_USERNAME}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
+        MYSQL_DATABASE: ${DB_DATABASE}
+        MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+        MYSQL_USER: ${DB_USERNAME}
+        MYSQL_PASSWORD: ${DB_PASSWORD}
     volumes:
-      - db_data:/var/lib/mysql
+        - db_data:/var/lib/mysql
     ports:
-      - "3307:3306"
+        - "3307:3306"
     networks:
-      - laravel-network
+        - laravel-network
 
 networks:
-  laravel-network:
-    driver: bridge
+    laravel-network:
+        driver: bridge
 
 volumes:
-  db_data:
+    db_data:
