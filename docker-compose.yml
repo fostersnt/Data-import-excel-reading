@@ -22,7 +22,7 @@ services:
     image: ubuntu/apache2
     container_name: apache_server
     volumes:
-        - ./Apache2/dataimport.conf:/etc/apache2/dataimport.conf
+        - ./Apache2/dataimport.conf:/etc/apache2/sites-available/dataimport.conf
         - ./Apache2/apache2.conf:/etc/apache2/apache2.conf
     # ports:
     #   - "8000:80"

@@ -1,5 +1,5 @@
 # Use Ubuntu as the base image
-FROM php:8.1 as myPHP
+FROM php:8.1 AS php
 
 # Set environment variables
 # ENV APACHE_DOCUMENT_ROOT /var/www/public
@@ -50,7 +50,7 @@ WORKDIR /var/www/dataimport
 # RUN composer create-project --prefer-dist laravel/laravel laravel-app
 
 # Move the Laravel app files to the Apache root directory
-# COPY ../ .
+COPY ../ .
 
 # COPY Apache2/000-default.conf /etc/apache2/sites-available/
 # COPY Apache2/apache2.conf /etc/apache2/
