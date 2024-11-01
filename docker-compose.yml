@@ -24,6 +24,7 @@ services:
     volumes:
         - ./Apache2/dataimport.conf:/etc/apache2/sites-available/dataimport.conf
         - ./Apache2/apache2.conf:/etc/apache2/apache2.conf
+        - ./Apache2/hosts:/etc/hosts
     # ports:
     #   - "8000:80"
     depends_on:
