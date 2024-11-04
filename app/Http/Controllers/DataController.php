@@ -84,35 +84,46 @@ class DataController extends Controller
 
     public function excelUpload()
     {
-        if (request()->hasFile('myExcelFile')) {
+        try {
 
-            $filePath = request()->file('myExcelFile');
+            if (request()->hasFile('myExcelFile')) {
 
-            $spreadsheet = IOFactory::load($filePath);
+                //NOTE: You are likely to face issues during upload. Ensure you are giving valid name to your file when atoring it.
+                $date = date('d_m_Y_G_i_s');
 
-            $result = [];
+                $file = request()->file('myExcelFile')->move(resource_path('Files'), "excel_upload_$date" . ".xlsx");
 
-            foreach ($spreadsheet->getAllSheets() as $sheet) {
+                $spreadsheet = IOFactory::load($file);
 
-                $sheetData = $sheet->toArray(null, true, true, true);
+                $result = [];
 
-                $headers = array_shift($sheetData);
+                foreach ($spreadsheet->getAllSheets() as $sheet) {
 
-                Log::info('Sheet data: ' . json_encode($sheetData));
+                    $sheetData = $sheet->toArray(null, true, true, true);
 
-                foreach ($sheetData as $data) {
+                    $headers = array_shift($sheetData);
 
-                    $item = array_combine($headers, $data);
+                    Log::info('Sheet data: ' . json_encode($sheetData));
 
-                    $result[] = $item;
+                    foreach ($sheetData as $data) {
+
+                        $item = array_combine($headers, $data);
+
+                        $result[] = $item;
+                    }
                 }
+
+                //Remove the file
+                unlink($file);
+
+                dd($result);
+
+                return 'Welcome';
+            } else {
+                return 'No file uploaded. Please try again.';
             }
-
-            dd($result);
-
-            return 'Welcome';
-        } else {
-            return 'No file uploaded. Please try again.';
+        } catch (\Throwable $th) {
+            return "ERROR MESSAGE: " . $th->getMessage() . "\nLINE NUMBER: " . $th->getLine();
         }
     }
 }
