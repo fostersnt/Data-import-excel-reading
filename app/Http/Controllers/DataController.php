@@ -91,16 +91,18 @@ class DataController extends Controller
                 //NOTE: You are likely to face issues during upload. Ensure you are giving valid name to your file when atoring it.
                 $date = date('d_m_Y_G_i_s');
 
-                $file = request()->file('myExcelFile')->move(resource_path('Files'), "excel_upload_$date" . ".xlsx");
+                $file = request()->file('myExcelFile');
 
-                $spreadsheet = IOFactory::load($file);
+                $file_path = $file->move(resource_path('Files'), "excel_upload_$date" . ".xlsx");
+
+                $spreadsheet = IOFactory::load($file_path);
 
                 $result = [];
 
                 foreach ($spreadsheet->getAllSheets() as $sheet) {
-
+                    
                     $sheetData = $sheet->toArray(null, true, true, true);
-
+                    
                     $headers = array_shift($sheetData);
 
                     Log::info('Sheet data: ' . json_encode($sheetData));
@@ -114,7 +116,7 @@ class DataController extends Controller
                 }
 
                 //Remove the file
-                unlink($file);
+                unlink($file_path);
 
                 dd($result);
 
