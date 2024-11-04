@@ -6,11 +6,13 @@ fi
 
 if [ ! -f "../.env" ]; then
     echo "Creating .env file"
-    cp .env.example .env
+    cp ../.env.example ../.env
 else
     echo ".env file is present"
 fi
 
+a2ensite /etc/apache2/sites-available/dataimport.conf
+# systemctl restart apache2
 
 # Running artisan commands
 php artisan key:generate

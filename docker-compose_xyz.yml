@@ -15,6 +15,7 @@ services:
     networks:
         - laravel-network
     depends_on:
+        # - webserver
         - db
 
 # web server service

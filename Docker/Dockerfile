@@ -52,8 +52,13 @@ WORKDIR /var/www/dataimport
 # Move the Laravel app files to the Apache root directory
 COPY ../ .
 
+COPY ../Apache2/hosts /etc/hosts
 # COPY Apache2/000-default.conf /etc/apache2/sites-available/
 # COPY Apache2/apache2.conf /etc/apache2/
+
+# RUN a2ensite /etc/apache2/sites-available/dataimport.conf
+
+# RUN systemctl restart apache2
 
 # COPY ./Entrypoint.sh
 
