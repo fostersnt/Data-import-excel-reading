@@ -6,6 +6,7 @@ use App\Helpers\General;
 use App\Mail\TrialMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -84,22 +85,34 @@ class DataController extends Controller
     public function excelUpload()
     {
         if (request()->hasFile('myExcelFile')) {
-            $filePath = request()->myExcelFile; // Ensure this points to your .xlsx file
+
+            $filePath = request()->file('myExcelFile');
+
             $spreadsheet = IOFactory::load($filePath);
-            $sheetData = $spreadsheet->getActiveSheet()->toArray(null, true, true, true);
-            $headers = $sheetData[1];
-            unset($sheetData[1]);
 
             $result = [];
 
-            foreach ($sheetData as $data) {
-                $item = array_combine($headers, $data);
-                array_push($result, $item);
+            foreach ($spreadsheet->getAllSheets() as $sheet) {
+
+                $sheetData = $sheet->toArray(null, true, true, true);
+
+                $headers = array_shift($sheetData);
+
+                Log::info('Sheet data: ' . json_encode($sheetData));
+
+                foreach ($sheetData as $data) {
+
+                    $item = array_combine($headers, $data);
+
+                    $result[] = $item;
+                }
             }
+
             dd($result);
+
             return 'Welcome';
         } else {
-            return 'Go away';
+            return 'No file uploaded. Please try again.';
         }
     }
 }
