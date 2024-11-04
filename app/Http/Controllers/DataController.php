@@ -14,7 +14,7 @@ class DataController extends Controller
 {
     public function readExistingFile()
     {
-        General::read_school_codes();
+        // General::read_school_codes();
         return 'SUCCESS';
         // mail('foster.asante@gwosevo.com', 'TESTING', 'God is good');
         // Mail::to('foster.asante@gwosevo.com')->send(new TrialMail());
@@ -79,5 +79,27 @@ class DataController extends Controller
         // return count($flatArray);
         // Process the data or pass it to a view
         // return view('result', ['data' => $data]);
+    }
+
+    public function excelUpload()
+    {
+        if (request()->hasFile('myExcelFile')) {
+            $filePath = request()->myExcelFile; // Ensure this points to your .xlsx file
+            $spreadsheet = IOFactory::load($filePath);
+            $sheetData = $spreadsheet->getActiveSheet()->toArray(null, true, true, true);
+            $headers = $sheetData[1];
+            unset($sheetData[1]);
+
+            $result = [];
+
+            foreach ($sheetData as $data) {
+                $item = array_combine($headers, $data);
+                array_push($result, $item);
+            }
+            dd($result);
+            return 'Welcome';
+        } else {
+            return 'Go away';
+        }
     }
 }

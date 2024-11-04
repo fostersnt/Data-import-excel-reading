@@ -13,9 +13,9 @@
     </head>
     <body class="antialiased">
         <div>
-            <form action="{{route('upload')}}" method="POST" enctype="multipart/form-data">
+            <form action="{{route('read.excel')}}" method="POST" enctype="multipart/form-data">
                 @csrf
-                <input type="file" name="mycsv" id="mycsv">
+                <input type="file" name="myExcelFile" id="myExcelFile">
                 <input type="submit" value="Upload">
             </form>
         </div>
