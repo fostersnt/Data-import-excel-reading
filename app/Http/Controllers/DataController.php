@@ -5,11 +5,14 @@ namespace App\Http\Controllers;
 use App\Helpers\General;
 use App\Mail\TrialMail;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class DataController extends Controller
 {
@@ -85,46 +88,70 @@ class DataController extends Controller
     public function excelUpload()
     {
         try {
-
             if (request()->hasFile('myExcelFile')) {
-
-                //NOTE: You are likely to face issues during upload. Ensure you are giving valid name to your file when atoring it.
                 $date = date('d_m_Y_G_i_s');
-
                 $file = request()->file('myExcelFile');
-
-                $file_path = $file->move(resource_path('Files'), "excel_upload_$date" . ".xlsx");
+                $file_path = $file->move(resource_path('Files'), "excel_upload_$date.xlsx");
 
                 $spreadsheet = IOFactory::load($file_path);
-
                 $result = [];
 
                 foreach ($spreadsheet->getAllSheets() as $sheet) {
-                    
                     $sheetData = $sheet->toArray(null, true, true, true);
-                    
                     $headers = array_shift($sheetData);
 
                     Log::info('Sheet data: ' . json_encode($sheetData));
 
                     foreach ($sheetData as $data) {
-
                         $item = array_combine($headers, $data);
-
                         $result[] = $item;
                     }
                 }
 
-                //Remove the file
+                // Remove the uploaded file after processing
                 unlink($file_path);
 
-                dd($result);
+                // Chunk the result for processing
+                $chunks = count($result) > 100 ? array_chunk($result, 50) : [$result];
 
-                return 'Welcome';
+                $path = resource_path('ExcelFiles');
+
+                if (!is_dir($path)) {
+                    mkdir($path, 0777, true);
+                }
+
+                foreach ($chunks as $key => $chunk) {
+                    $chunk_file_name = "$path/temp_$key.xlsx";
+                    $spreadsheet = new Spreadsheet();
+                    $sheet = $spreadsheet->getActiveSheet();
+
+                    // Add headers
+                    $col = 1;
+                    foreach (array_keys($chunk[0]) as $header) {
+                        $sheet->setCellValue([$col++, 1], $header);
+                    }
+
+                    // Add data
+                    $row = 2;
+                    foreach ($chunk as $data) {
+                        $col = 1;
+                        foreach ($data as $value) {
+                            $sheet->setCellValue([$col++, $row], $value);
+                        }
+                        $row++;
+                    }
+
+                    // Save the chunk file
+                    $writer = new Xlsx($spreadsheet);
+                    $writer->save($chunk_file_name);
+                }
+
+                return 'Upload successful!';
             } else {
                 return 'No file uploaded. Please try again.';
             }
         } catch (\Throwable $th) {
+            Log::error("Upload error: " . $th->getMessage(), ['line' => $th->getLine()]);
             return "ERROR MESSAGE: " . $th->getMessage() . "\nLINE NUMBER: " . $th->getLine();
         }
     }
